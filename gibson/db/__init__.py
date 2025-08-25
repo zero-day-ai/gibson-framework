@@ -1,118 +1,16 @@
-"""Gibson database models package - consolidated models location.
+"""Gibson database models package - base classes and essential imports only.
 
-This package contains all database models for the Gibson framework,
-organized by functional area for better maintainability.
+This package provides base classes and utilities. 
+Model registration is handled by gibson.db.models package to avoid circular imports.
 """
 
-# Base classes and utilities
+# Base classes and utilities only - no model imports to avoid circular dependencies
 from gibson.db.base import Base, BaseDBModel, CRUDMixin, TimestampMixin
 
-# Scan-related models
-from gibson.db.models.scan import (
-    ScanRecord,
-    FindingRecord,
-    ModuleRecord,
-    ModuleResultRecord,
-)
-
-# Payload-related models
-from gibson.db.models.payload import (
-    PayloadRecord,
-    PayloadCollectionRecord,
-    PayloadSourceRecord,
-    PayloadEffectivenessRecord,
-    # Legacy models (temporary for backward compatibility)
-    PromptSourceRecord,
-    PromptCollectionRecord,
-    PromptRecord,
-)
-
-# Authentication and credential models
-from gibson.db.models.auth import (
-    APIKeyRecord,
-    EncryptedCredentialRecord,
-    AuthenticationTokenRecord,
-    OAuthProviderRecord,
-    SessionRecord,
-)
-
-# Audit and statistics models
-from gibson.db.models.audit import (
-    MigrationAudit,
-    AuditLogRecord,
-    PromptAttackStats,
-    DataAttackStats,
-    ModelAttackStats,
-    SystemAttackStats,
-    OutputAttackStats,
-    PerformanceMetrics,
-    SecurityEventLog,
-)
-
-# Report and target models
-from gibson.db.models.report import (
-    TargetRecord,
-    ReportRecord,
-    ReportTemplateRecord,
-    ReportDistributionRecord,
-    ReportScheduleRecord,
-)
-
-# Utilities
-from gibson.db.utils.converters import (
-    ModelConverter,
-    QueryHelper,
-)
-
-# Export all models and utilities
+# Export only base classes to avoid circular imports
 __all__ = [
-    # Base classes
-    'Base',
-    'BaseDBModel',
-    'CRUDMixin',
-    'TimestampMixin',
-    
-    # Scan models
-    'ScanRecord',
-    'FindingRecord',
-    'ModuleRecord',
-    'ModuleResultRecord',
-    
-    # Payload models
-    'PayloadRecord',
-    'PayloadCollectionRecord',
-    'PayloadSourceRecord',
-    'PayloadEffectivenessRecord',
-    'PromptSourceRecord',
-    'PromptCollectionRecord',
-    'PromptRecord',
-    
-    # Authentication models
-    'APIKeyRecord',
-    'EncryptedCredentialRecord',
-    'AuthenticationTokenRecord',
-    'OAuthProviderRecord',
-    'SessionRecord',
-    
-    # Audit models
-    'MigrationAudit',
-    'AuditLogRecord',
-    'PromptAttackStats',
-    'DataAttackStats',
-    'ModelAttackStats',
-    'SystemAttackStats',
-    'OutputAttackStats',
-    'PerformanceMetrics',
-    'SecurityEventLog',
-    
-    # Report models
-    'TargetRecord',
-    'ReportRecord',
-    'ReportTemplateRecord',
-    'ReportDistributionRecord',
-    'ReportScheduleRecord',
-    
-    # Utilities
-    'ModelConverter',
-    'QueryHelper',
+    "Base",
+    "BaseDBModel", 
+    "CRUDMixin",
+    "TimestampMixin",
 ]

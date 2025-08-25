@@ -15,12 +15,14 @@ from gibson.core.payloads.url_parser import URLParser
 from gibson.core.payloads.git_models import GitURL, GitPlatform, GitCredentials
 from gibson.core.payloads.git_sync import GitSync
 from gibson.core.payloads.models.git_sync import CloneResult, UpdateResult, AuthMethod
-from gibson.core.payloads.types import SyncResult, PayloadDomain
+from gibson.core.payloads.types import SyncResult
+from gibson.models.domain import AttackDomain
 
 
 # ========================================
 # URL Parser Fixtures
 # ========================================
+
 
 @pytest.fixture
 def url_parser():
@@ -98,6 +100,7 @@ def problematic_urls():
 # Authentication Fixtures
 # ========================================
 
+
 @pytest.fixture
 def mock_git_sync(tmp_path):
     """Provides a mock GitSync instance."""
@@ -114,23 +117,20 @@ def mock_github_credentials():
         host="github.com",
         auth_type="token",
         username="testuser",
-        token="ghp_testtokenABCD1234567890"
+        token="ghp_testtokenABCD1234567890",
     )
 
 
 @pytest.fixture
 def mock_gitlab_credentials():
     """Mock GitLab credentials for testing."""
-    return GitCredentials(
-        host="gitlab.com",
-        auth_type="token",
-        token="glpat-testtoken1234567890"
-    )
+    return GitCredentials(host="gitlab.com", auth_type="token", token="glpat-testtoken1234567890")
 
 
 # ========================================
 # Git URL Model Fixtures
 # ========================================
+
 
 @pytest.fixture
 def github_git_url():
@@ -140,7 +140,7 @@ def github_git_url():
         host="github.com",
         owner="zero-day-ai",
         repo="gibson-prompt-library",
-        branch="main"
+        branch="main",
     )
 
 
@@ -152,7 +152,7 @@ def gitlab_git_url():
         host="gitlab.com",
         owner="security-team",
         repo="test-payloads",
-        branch="main"
+        branch="main",
     )
 
 
@@ -160,16 +160,13 @@ def gitlab_git_url():
 # Mock HTTP Response Fixtures
 # ========================================
 
+
 @pytest.fixture
 def mock_github_api_response():
     """Mock successful GitHub API response."""
     mock_response = Mock()
     mock_response.status_code = 200
-    mock_response.json.return_value = {
-        "login": "testuser",
-        "name": "Test User",
-        "id": 12345
-    }
+    mock_response.json.return_value = {"login": "testuser", "name": "Test User", "id": 12345}
     return mock_response
 
 
@@ -180,18 +177,8 @@ def mock_github_tree_response():
     mock_response.status_code = 200
     mock_response.json.return_value = {
         "tree": [
-            {
-                "path": "prompts/injection.txt",
-                "type": "blob",
-                "sha": "abc123",
-                "size": 1024
-            },
-            {
-                "path": "README.md",
-                "type": "blob",
-                "sha": "def456",
-                "size": 512
-            }
+            {"path": "prompts/injection.txt", "type": "blob", "sha": "abc123", "size": 1024},
+            {"path": "README.md", "type": "blob", "sha": "def456", "size": 512},
         ]
     }
     return mock_response
@@ -200,6 +187,7 @@ def mock_github_tree_response():
 # ========================================
 # Async Fixtures
 # ========================================
+
 
 @pytest.fixture
 async def mock_async_session():
@@ -212,11 +200,9 @@ async def mock_async_session():
 def mock_payload_manager():
     """Mock PayloadManager for integration tests."""
     manager = AsyncMock()
-    manager.sync_repository = AsyncMock(return_value={
-        "success": True,
-        "fetched_count": 10,
-        "processed_count": 10
-    })
+    manager.sync_repository = AsyncMock(
+        return_value={"success": True, "fetched_count": 10, "processed_count": 10}
+    )
     return manager
 
 
@@ -224,25 +210,27 @@ def mock_payload_manager():
 # File System Fixtures
 # ========================================
 
+
 @pytest.fixture
 def temp_git_repo(tmp_path):
     """Creates a temporary directory structure mimicking a git repo."""
     repo_path = tmp_path / "test-repo"
     repo_path.mkdir()
-    
+
     # Create structure
     (repo_path / "prompts").mkdir()
     (repo_path / "prompts" / "injection.txt").write_text("test payload")
     (repo_path / "data").mkdir()
     (repo_path / "data" / "poisoning.json").write_text('{"test": "data"}')
     (repo_path / "README.md").write_text("# Test Repo")
-    
+
     return repo_path
 
 
 # ========================================
 # Test Data Fixtures
 # ========================================
+
 
 @pytest.fixture
 def invalid_urls():
@@ -263,7 +251,11 @@ def edge_case_urls():
         # URL with port
         ("https://git.company.com:8080/owner/repo.git", 8080),
         # URL with special characters
-        ("https://github.com/owner-with-dash/repo_with_underscore.git", "owner-with-dash", "repo_with_underscore"),
+        (
+            "https://github.com/owner-with-dash/repo_with_underscore.git",
+            "owner-with-dash",
+            "repo_with_underscore",
+        ),
         # URL with numbers
         ("https://github.com/User123/Repo456.git", "User123", "Repo456"),
     ]
@@ -272,6 +264,7 @@ def edge_case_urls():
 # ========================================
 # Git Operation Fixtures
 # ========================================
+
 
 @pytest.fixture
 def mock_clone_result():
@@ -285,7 +278,7 @@ def mock_clone_result():
         clone_size_mb=10.5,
         clone_duration_seconds=2.5,
         is_shallow=True,
-        error_message=None
+        error_message=None,
     )
 
 
@@ -299,7 +292,7 @@ def mock_update_result():
         new_commit="new456",
         files_changed=5,
         auth_method_used=AuthMethod.SSH_KEY,
-        error_message=None
+        error_message=None,
     )
 
 
@@ -311,7 +304,7 @@ def mock_ssh_git_url():
         host="github.com",
         owner="zero-day-ai",
         repo="gibson-prompt-library",
-        branch="main"
+        branch="main",
     )
 
 
@@ -323,7 +316,7 @@ def mock_https_git_url():
         host="github.com",
         owner="zero-day-ai",
         repo="gibson-prompt-library",
-        branch="main"
+        branch="main",
     )
 
 
@@ -331,10 +324,7 @@ def mock_https_git_url():
 def mock_git_credentials():
     """Mock Git credentials for testing."""
     return GitCredentials(
-        host="github.com",
-        auth_type="token",
-        username="testuser",
-        token="test_token_123"
+        host="github.com", auth_type="token", username="testuser", token="test_token_123"
     )
 
 
@@ -347,7 +337,7 @@ def mock_sync_result_success():
         branch="main",
         fetched_count=15,
         processed_count=15,
-        error=None
+        error=None,
     )
 
 
@@ -360,7 +350,7 @@ def mock_sync_result_auth_error():
         branch="main",
         fetched_count=0,
         processed_count=0,
-        error="Authentication failed: Please check your credentials"
+        error="Authentication failed: Please check your credentials",
     )
 
 
@@ -369,30 +359,29 @@ def mock_httpx_responses():
     """Mock httpx responses for different scenarios."""
     return {
         "auth_success": AsyncMock(
-            status_code=200,
-            json=AsyncMock(return_value={"message": "Authenticated"})
+            status_code=200, json=AsyncMock(return_value={"message": "Authenticated"})
         ),
         "auth_failure": AsyncMock(
-            status_code=401,
-            json=AsyncMock(return_value={"message": "Bad credentials"})
+            status_code=401, json=AsyncMock(return_value={"message": "Bad credentials"})
         ),
         "rate_limit": AsyncMock(
             status_code=429,
             headers={"X-RateLimit-Reset": "1234567890"},
-            json=AsyncMock(return_value={"message": "Rate limited"})
+            json=AsyncMock(return_value={"message": "Rate limited"}),
         ),
         "not_found": AsyncMock(
-            status_code=404,
-            json=AsyncMock(return_value={"message": "Not Found"})
-        )
+            status_code=404, json=AsyncMock(return_value={"message": "Not Found"})
+        ),
     }
 
 
 @pytest.fixture
 def mock_prompt_for_credentials():
     """Mock credential prompt function."""
+
     def prompt(host: str = "github.com"):
         return ("testuser", "test_token_123")
+
     return Mock(side_effect=prompt)
 
 
@@ -400,20 +389,13 @@ def mock_prompt_for_credentials():
 # Pytest Configuration
 # ========================================
 
+
 def pytest_configure(config):
     """Configure pytest with custom markers."""
-    config.addinivalue_line(
-        "markers", "unit: Unit tests that test individual components"
-    )
+    config.addinivalue_line("markers", "unit: Unit tests that test individual components")
     config.addinivalue_line(
         "markers", "integration: Integration tests that test component interactions"
     )
-    config.addinivalue_line(
-        "markers", "e2e: End-to-end tests that test complete workflows"
-    )
-    config.addinivalue_line(
-        "markers", "slow: Tests that take longer to run"
-    )
-    config.addinivalue_line(
-        "markers", "network: Tests that require network access"
-    )
+    config.addinivalue_line("markers", "e2e: End-to-end tests that test complete workflows")
+    config.addinivalue_line("markers", "slow: Tests that take longer to run")
+    config.addinivalue_line("markers", "network: Tests that require network access")

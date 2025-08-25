@@ -230,27 +230,8 @@ class UniversalFindingMapper:
         }
 ```
 
-### 4. Research-Friendly Features
 
-```python
-class ResearchMode:
-    """Enable research-specific features."""
-    
-    def create_custom_taxonomy(self, name: str, schema: dict):
-        """Allow researchers to define custom taxonomies."""
-        pass
-    
-    def import_academic_classification(self, paper_url: str):
-        """Import attack classifications from academic papers."""
-        pass
-    
-    def export_to_standard(self, findings: List[Finding], 
-                          standard: str = "owasp"):
-        """Export findings to industry standard format."""
-        pass
-```
-
-### 5. Taxonomy Versioning
+### 4. Taxonomy Versioning
 
 ```python
 class TaxonomyVersion:

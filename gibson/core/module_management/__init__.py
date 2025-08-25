@@ -31,7 +31,7 @@ from gibson.core.module_management.models import (
 
 __all__ = [
     "ModuleManagementError",
-    "ModuleNotFoundError", 
+    "ModuleNotFoundError",
     "ModuleInstallationError",
     "DependencyError",
     "ModuleValidationError",

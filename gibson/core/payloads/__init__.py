@@ -19,6 +19,7 @@ from .types import (
     ImportResult,
     SyncResult,
 )
+
 # Import replacement models from gibson.models
 from gibson.models.payload import PayloadModel
 from gibson.models.domain import AttackDomain, ModuleCategory, Severity
@@ -36,7 +37,7 @@ from .monitor import PayloadMonitor
 
 __all__ = [
     "PayloadModel",
-    "PayloadQuery", 
+    "PayloadQuery",
     "ImportResult",
     "SyncResult",
     "AttackDomain",

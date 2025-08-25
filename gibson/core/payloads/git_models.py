@@ -13,6 +13,7 @@ from gibson.models.base import GibsonBaseModel
 
 class GitPlatform(str, Enum):
     """Supported Git platforms."""
+
     GITHUB = "github"
     GITLAB = "gitlab"
     BITBUCKET = "bitbucket"
@@ -23,7 +24,7 @@ class GitPlatform(str, Enum):
 
 class GitURL(GibsonBaseModel):
     """Parsed Git repository URL with platform detection."""
-    
+
     model_config = ConfigDict(use_enum_values=False)  # Keep enums as enums
 
     platform: GitPlatform = Field(GitPlatform.GENERIC, description="Git hosting platform")
@@ -34,8 +35,8 @@ class GitURL(GibsonBaseModel):
     branch: Optional[str] = Field("main", description="Branch or tag reference")
     path: Optional[str] = Field(None, description="Subpath within repository")
     port: Optional[int] = Field(None, description="Port for self-hosted Git servers")
-    
-    @field_validator('platform', mode='before')
+
+    @field_validator("platform", mode="before")
     @classmethod
     def ensure_platform_enum(cls, v):
         """Ensure platform is always a GitPlatform enum."""
@@ -58,30 +59,32 @@ class GitURL(GibsonBaseModel):
             ValueError: If URL format is invalid
         """
         # Remove trailing slashes and whitespace
-        url = url.strip().rstrip('/')
+        url = url.strip().rstrip("/")
 
         # Check for shorthand format (should be rejected)
-        if '/' in url and not any(prefix in url for prefix in ['://', '@']):
-            if url.count('/') == 1:  # Looks like owner/repo format
+        if "/" in url and not any(prefix in url for prefix in ["://", "@"]):
+            if url.count("/") == 1:  # Looks like owner/repo format
                 raise ValueError(
                     f"Full Git URL required. Use: https://github.com/{url}.git instead of {url}"
                 )
 
         # Handle SSH format (git@host:owner/repo.git)
-        if url.startswith('git@'):
+        if url.startswith("git@"):
             return cls._parse_ssh_url(url)
 
         # Parse standard URL formats
         parsed = urlparse(url)
 
         if not parsed.scheme:
-            raise ValueError(f"Invalid Git URL: {url}. Must include protocol (https://, git://, ssh://)")
+            raise ValueError(
+                f"Invalid Git URL: {url}. Must include protocol (https://, git://, ssh://)"
+            )
 
         if not parsed.hostname:
             raise ValueError(f"Invalid Git URL: {url}. No hostname found")
 
         # Extract path components
-        path_parts = parsed.path.strip('/').split('/')
+        path_parts = parsed.path.strip("/").split("/")
 
         # Handle case where URL might be missing components for custom domains
         if len(path_parts) < 2 or not path_parts[0] or (len(path_parts) > 1 and not path_parts[1]):
@@ -89,14 +92,16 @@ class GitURL(GibsonBaseModel):
             if len(path_parts) == 1 and path_parts[0]:
                 # Try to construct with unknown owner
                 owner = "unknown"
-                repo = path_parts[0].removesuffix('.git')
+                repo = path_parts[0].removesuffix(".git")
             else:
-                raise ValueError(f"Invalid Git URL: {url}. Expected format: https://host/owner/repo")
+                raise ValueError(
+                    f"Invalid Git URL: {url}. Expected format: https://host/owner/repo"
+                )
         else:
             owner = path_parts[0]
             repo_with_suffix = path_parts[1]
             # Remove .git suffix if present
-            repo = repo_with_suffix.removesuffix('.git')
+            repo = repo_with_suffix.removesuffix(".git")
 
         # Extract branch from path or fragment
         branch = None
@@ -104,25 +109,25 @@ class GitURL(GibsonBaseModel):
 
         if len(path_parts) > 2:
             # Check for tree/blob pattern (GitHub/GitLab style)
-            if path_parts[2] in ['tree', 'blob', '-/tree', '-/blob']:
+            if path_parts[2] in ["tree", "blob", "-/tree", "-/blob"]:
                 if len(path_parts) > 3:
                     branch = path_parts[3]
                 if len(path_parts) > 4:
-                    subpath = '/'.join(path_parts[4:])
+                    subpath = "/".join(path_parts[4:])
             else:
                 # Might be a direct path reference
-                subpath = '/'.join(path_parts[2:])
+                subpath = "/".join(path_parts[2:])
 
         # Check fragment for branch reference
         if parsed.fragment and not branch:
-            if parsed.fragment.startswith('branch='):
+            if parsed.fragment.startswith("branch="):
                 branch = parsed.fragment[7:]
 
         # Check query params for ref
         if parsed.query:
             params = parse_qs(parsed.query)
-            if 'ref' in params and not branch:
-                branch = params['ref'][0]
+            if "ref" in params and not branch:
+                branch = params["ref"][0]
 
         return cls(
             protocol=parsed.scheme,
@@ -131,7 +136,7 @@ class GitURL(GibsonBaseModel):
             repo=repo,
             branch=branch or "main",
             path=subpath,
-            port=parsed.port
+            port=parsed.port,
         )
 
     @classmethod
@@ -148,28 +153,22 @@ class GitURL(GibsonBaseModel):
         url_without_prefix = url[4:]
 
         # Split host and path
-        if ':' not in url_without_prefix:
+        if ":" not in url_without_prefix:
             raise ValueError(f"Invalid SSH Git URL: {url}")
 
-        host, path = url_without_prefix.split(':', 1)
+        host, path = url_without_prefix.split(":", 1)
 
         # Parse path components
-        path_parts = path.strip('/').split('/')
+        path_parts = path.strip("/").split("/")
         if len(path_parts) < 2:
             raise ValueError(f"Invalid SSH Git URL: {url}. Expected git@host:owner/repo")
 
         owner = path_parts[0]
-        repo = path_parts[1].removesuffix('.git')
+        repo = path_parts[1].removesuffix(".git")
 
         # SSH URLs typically don't include branch in URL
         return cls(
-            protocol="ssh",
-            host=host,
-            owner=owner,
-            repo=repo,
-            branch="main",
-            path=None,
-            port=None
+            protocol="ssh", host=host, owner=owner, repo=repo, branch="main", path=None, port=None
         )
 
     def detect_platform_from_host(self) -> GitPlatform:
@@ -181,26 +180,32 @@ class GitURL(GibsonBaseModel):
         host_lower = self.host.lower()
 
         # Exact domain matches first
-        if host_lower == 'github.com' or host_lower.endswith('.github.com'):
+        if host_lower == "github.com" or host_lower.endswith(".github.com"):
             return GitPlatform.GITHUB
-        elif host_lower == 'gitlab.com' or host_lower.endswith('.gitlab.com'):
+        elif host_lower == "gitlab.com" or host_lower.endswith(".gitlab.com"):
             return GitPlatform.GITLAB
-        elif host_lower == 'bitbucket.org' or host_lower.endswith('.bitbucket.org'):
+        elif host_lower == "bitbucket.org" or host_lower.endswith(".bitbucket.org"):
             return GitPlatform.BITBUCKET
         # Check for GitHub Pages (github.io) - these are not Git repos
-        elif host_lower.endswith('.github.io'):
+        elif host_lower.endswith(".github.io"):
             return GitPlatform.GENERIC
         # Pattern matches for self-hosted platforms
-        elif host_lower.startswith('gogs.'):
+        elif host_lower.startswith("gogs."):
             return GitPlatform.GOGS
-        elif host_lower.startswith('gitea.'):
+        elif host_lower.startswith("gitea."):
             return GitPlatform.GITEA
         # Check for GitHub Enterprise (but not false positives)
-        elif host_lower.startswith('github.') and not any(x in host_lower for x in ['.internal.', '.local.', '.company.', '.corp.']):
+        elif host_lower.startswith("github.") and not any(
+            x in host_lower for x in [".internal.", ".local.", ".company.", ".corp."]
+        ):
             return GitPlatform.GITHUB
-        elif host_lower.startswith('gitlab.') and not any(x in host_lower for x in ['.internal.', '.local.', '.company.', '.corp.']):
+        elif host_lower.startswith("gitlab.") and not any(
+            x in host_lower for x in [".internal.", ".local.", ".company.", ".corp."]
+        ):
             return GitPlatform.GITLAB
-        elif host_lower.startswith('bitbucket.') and not any(x in host_lower for x in ['.internal.', '.local.', '.company.', '.corp.']):
+        elif host_lower.startswith("bitbucket.") and not any(
+            x in host_lower for x in [".internal.", ".local.", ".company.", ".corp."]
+        ):
             return GitPlatform.BITBUCKET
         else:
             return GitPlatform.GENERIC
@@ -263,7 +268,7 @@ class GitURL(GibsonBaseModel):
             raise ValueError("Repository name is required")
 
         # Validate protocol
-        valid_protocols = ['https', 'http', 'ssh', 'git']
+        valid_protocols = ["https", "http", "ssh", "git"]
         if self.protocol not in valid_protocols:
             raise ValueError(f"Invalid protocol: {self.protocol}. Must be one of {valid_protocols}")
 
@@ -271,43 +276,43 @@ class GitURL(GibsonBaseModel):
 
     def to_https_url(self) -> str:
         """Convert to HTTPS URL for public access.
-        
+
         Returns:
             HTTPS URL string for public access
         """
         port_str = f":{self.port}" if self.port else ""
         return f"https://{self.host}{port_str}/{self.owner}/{self.repo}.git"
-    
+
     def to_ssh_url(self) -> str:
         """Convert to SSH URL for key-based authentication.
-        
+
         Returns:
             SSH URL string for key-based access
         """
         return f"git@{self.host}:{self.owner}/{self.repo}.git"
-    
+
     def to_authenticated_url(self, token: str) -> str:
         """Convert to token-authenticated HTTPS URL.
-        
+
         Args:
             token: Authentication token
-            
+
         Returns:
             HTTPS URL with embedded token authentication
         """
         port_str = f":{self.port}" if self.port else ""
         # For GitHub/GitLab, token can be used as username with empty password
         return f"https://{token}@{self.host}{port_str}/{self.owner}/{self.repo}.git"
-    
+
     def get_clone_url_candidates(self) -> List[str]:
         """Get ordered list of URLs to try for authentication escalation.
-        
+
         Returns:
             List of URLs in order of preference (public, SSH, then token)
         """
         candidates = [
             self.to_https_url(),  # Try public access first
-            self.to_ssh_url(),    # Try SSH key authentication
+            self.to_ssh_url(),  # Try SSH key authentication
         ]
         return candidates
 
@@ -326,16 +331,16 @@ class GitCredentials(GibsonBaseModel):
     ssh_key_path: Optional[Path] = Field(None, description="Path to SSH private key")
     expires_at: Optional[datetime] = Field(None, description="Token expiration time")
 
-    @field_validator('auth_type')
+    @field_validator("auth_type")
     @classmethod
     def validate_auth_type(cls, v: str) -> str:
         """Validate authentication type."""
-        valid_types = ['token', 'oauth', 'ssh', 'basic']
+        valid_types = ["token", "oauth", "ssh", "basic"]
         if v not in valid_types:
             raise ValueError(f"Invalid auth_type: {v}. Must be one of {valid_types}")
         return v
 
-    @field_validator('ssh_key_path')
+    @field_validator("ssh_key_path")
     @classmethod
     def validate_ssh_key_path(cls, v: Optional[Path]) -> Optional[Path]:
         """Validate SSH key path exists if provided."""
@@ -360,18 +365,19 @@ class GitCredentials(GibsonBaseModel):
         Returns:
             Dictionary of HTTP headers
         """
-        if self.auth_type == 'token':
-            if self.host.endswith('github.com'):
-                return {'Authorization': f'Bearer {self.token}'}
-            elif self.host.endswith('gitlab.com'):
-                return {'PRIVATE-TOKEN': self.token}
+        if self.auth_type == "token":
+            if self.host.endswith("github.com"):
+                return {"Authorization": f"Bearer {self.token}"}
+            elif self.host.endswith("gitlab.com"):
+                return {"PRIVATE-TOKEN": self.token}
             else:
-                return {'Authorization': f'Bearer {self.token}'}
-        elif self.auth_type == 'basic':
+                return {"Authorization": f"Bearer {self.token}"}
+        elif self.auth_type == "basic":
             import base64
+
             credentials = base64.b64encode(f"{self.username}:{self.token}".encode()).decode()
-            return {'Authorization': f'Basic {credentials}'}
-        elif self.auth_type == 'oauth':
-            return {'Authorization': f'Bearer {self.token}'}
+            return {"Authorization": f"Basic {credentials}"}
+        elif self.auth_type == "oauth":
+            return {"Authorization": f"Bearer {self.token}"}
         else:
             return {}

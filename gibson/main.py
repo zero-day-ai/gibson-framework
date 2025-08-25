@@ -10,7 +10,20 @@ from loguru import logger
 from rich.console import Console
 
 from gibson import __version__
-from gibson.cli.commands import chain, config, console as console_cmd, credentials, database, llm, module, payloads, report, scan, schema, target
+from gibson.cli.commands import (
+    chain,
+    config,
+    console as console_cmd,
+    credentials,
+    database,
+    llm,
+    module,
+    payloads,
+    report,
+    scan,
+    schema,
+    target,
+)
 from gibson.core.config import ConfigManager
 from gibson.core.context import Context
 from gibson.utils.lazy_loader import LazyLoader
@@ -109,20 +122,20 @@ def main(
 ) -> None:
     """
     Gibson CLI - AI/ML Security Testing Framework.
-    
+
     A developer-first CLI for comprehensive AI security testing, combining
     cutting-edge attack techniques with an AI research assistant.
-    
+
     Examples:
         # Quick scan of an API endpoint
         gibson scan quick https://api.example.com
-        
+
         # Interactive console mode
         gibson console
-        
+
         # Search for modules
         gibson module search prompt-injection
-        
+
         # Run attack chain
         gibson chain run owasp-top-10
     """
@@ -130,7 +143,7 @@ def main(
     log_level = "DEBUG" if debug else "INFO" if verbose else "WARNING"
     if quiet:
         log_level = "ERROR"
-    
+
     logger.remove()  # Remove default handler
     logger.add(
         sys.stderr,
@@ -138,7 +151,7 @@ def main(
         format="<green>{time:HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
         colorize=not no_color,
     )
-    
+
     # Initialize global context
     config_manager = ConfigManager(config_file=config_file)
     context = Context(
@@ -150,10 +163,10 @@ def main(
         no_color=no_color,
         output_format=output_format,
     )
-    
+
     # Store context in Typer context
     ctx.obj = context
-    
+
     logger.debug(f"Gibson CLI v{__version__} initialized")
     logger.debug(f"Config loaded from: {config_manager.config_file}")
 

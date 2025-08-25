@@ -12,10 +12,9 @@ from gibson.models.domain import AttackDomain, ModuleCategory, Severity
 from gibson.models.payload import PayloadStatus
 
 
-
-
 class PayloadQuery(BaseModel):
     """Query parameters for payload search and filtering."""
+
     search: Optional[str] = None
     domain: Optional[AttackDomain] = None
     attack_type: Optional[str] = None
@@ -32,27 +31,27 @@ class PayloadQuery(BaseModel):
     updated_after: Optional[datetime] = None
     updated_before: Optional[datetime] = None
     source_repo: Optional[str] = None
-    sort_by: str = 'updated_at'
-    sort_order: str = Field('desc', pattern='^(asc|desc)$')
+    sort_by: str = "updated_at"
+    sort_order: str = Field("desc", pattern="^(asc|desc)$")
     limit: Optional[int] = Field(None, ge=1, le=1000)
     offset: int = Field(0, ge=0)
     include_deprecated: bool = False
     include_experimental: bool = True
 
     @classmethod
-    @field_validator('tags', mode='before')
-    def normalize_query_tags(cls, v: Union[List[str], str, None]) ->Optional[
-        List[str]]:
+    @field_validator("tags", mode="before")
+    def normalize_query_tags(cls, v: Union[List[str], str, None]) -> Optional[List[str]]:
         """Normalize tags for query."""
         if not v:
             return None
         if isinstance(v, str):
-            return [tag.strip().lower() for tag in v.split(',') if tag.strip()]
+            return [tag.strip().lower() for tag in v.split(",") if tag.strip()]
         return [tag.strip().lower() for tag in v if tag.strip()]
 
 
 class ImportResult(BaseModel):
     """Result of payload import operation."""
+
     success: bool
     imported_count: int = 0
     updated_count: int = 0
@@ -66,25 +65,24 @@ class ImportResult(BaseModel):
     source_info: Optional[Dict[str, Any]] = None
 
     @property
-    def total_processed(self) ->int:
+    def total_processed(self) -> int:
         """Total number of payloads processed."""
-        return (self.imported_count + self.updated_count + self.
-            skipped_count + self.error_count)
+        return self.imported_count + self.updated_count + self.skipped_count + self.error_count
 
     @property
-    def success_rate(self) ->float:
+    def success_rate(self) -> float:
         """Success rate of import operation."""
         if self.total_processed == 0:
             return 0.0
-        return (self.imported_count + self.updated_count
-            ) / self.total_processed
+        return (self.imported_count + self.updated_count) / self.total_processed
 
 
 class SyncResult(BaseModel):
     """Result of payload synchronization operation."""
+
     success: bool
     repository: str
-    branch: str = 'main'
+    branch: str = "main"
     fetched_count: int = 0
     processed_count: int = 0  # Alias for imported_count for backward compatibility
     imported_count: int = 0
@@ -103,26 +101,26 @@ class SyncResult(BaseModel):
     total_processed: Optional[int] = None  # Total payloads processed
     auth_method: Optional[str] = None  # Authentication method used (public, ssh_key, token)
     clone_method: Optional[str] = None  # Clone method used (shallow, full)
-    
+
     def add_error(self, error: str) -> None:
         """Add an error to the errors list and update error field."""
         self.errors.append(error)
         if not self.error:
             self.error = error  # Set first error as main error
-    
-    @model_validator(mode='after')
-    def sync_processed_count(self) -> 'SyncResult':
+
+    @model_validator(mode="after")
+    def sync_processed_count(self) -> "SyncResult":
         """Keep processed_count in sync with imported_count."""
         self.processed_count = self.imported_count
         return self
 
     @property
-    def total_changes(self) ->int:
+    def total_changes(self) -> int:
         """Total number of changes made."""
         return self.imported_count + self.updated_count + self.deleted_count
 
     @property
-    def change_rate(self) ->float:
+    def change_rate(self) -> float:
         """Rate of successful changes."""
         if self.fetched_count == 0:
             return 0.0
@@ -131,6 +129,7 @@ class SyncResult(BaseModel):
 
 class PayloadMetrics(BaseModel):
     """Performance and usage metrics for payloads."""
+
     total_payloads: int = 0
     active_payloads: int = 0
     deprecated_payloads: int = 0
@@ -146,9 +145,11 @@ class PayloadMetrics(BaseModel):
     payloads_with_references: int = 0
     avg_tags_per_payload: float = 0.0
 
-    def calculate_coverage_by_domain(self) ->Dict[str, float]:
+    def calculate_coverage_by_domain(self) -> Dict[str, float]:
         """Calculate payload coverage percentage by domain."""
         if self.total_payloads == 0:
             return {domain.value: (0.0) for domain in AttackDomain}
-        return {domain.value: (count / self.total_payloads * 100) for 
-            domain, count in self.domain_counts.items()}
+        return {
+            domain.value: (count / self.total_payloads * 100)
+            for domain, count in self.domain_counts.items()
+        }

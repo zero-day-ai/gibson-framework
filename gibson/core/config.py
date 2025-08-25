@@ -13,7 +13,7 @@ from loguru import logger
 
 class APIConfig(BaseModel):
     """API configuration settings."""
-    
+
     timeout: int = Field(default=30, description="Request timeout in seconds")
     retry: int = Field(default=3, description="Number of retries")
     rate_limit: int = Field(default=100, description="Requests per minute")
@@ -22,7 +22,7 @@ class APIConfig(BaseModel):
 
 class RegistryConfig(BaseModel):
     """Module registry configuration."""
-    
+
     sources: list[str] = Field(
         default_factory=lambda: ["github.com/zero-day-ai/gibson-modules"],
         description="Module registry sources",
@@ -33,7 +33,7 @@ class RegistryConfig(BaseModel):
 
 class PromptRegistryConfig(BaseModel):
     """Prompt registry configuration."""
-    
+
     sources: list[Dict[str, Any]] = Field(
         default_factory=lambda: [
             {
@@ -41,36 +41,25 @@ class PromptRegistryConfig(BaseModel):
                 "name": "official",
                 "priority": 100,
                 "branch": "main",
-                "enabled": True
+                "enabled": True,
             }
         ],
         description="Prompt registry sources",
     )
-    cache_dir: Optional[Path] = Field(
-        default=None,
-        description="Prompt cache directory"
-    )
-    auto_update: bool = Field(
-        default=True,
-        description="Auto-update prompt collections"
-    )
+    cache_dir: Optional[Path] = Field(default=None, description="Prompt cache directory")
+    auto_update: bool = Field(default=True, description="Auto-update prompt collections")
     update_interval: int = Field(
-        default=86400,
-        description="Update interval in seconds (24 hours default)"
+        default=86400, description="Update interval in seconds (24 hours default)"
     )
     max_prompts_per_module: int = Field(
-        default=100,
-        description="Maximum prompts to load per module"
+        default=100, description="Maximum prompts to load per module"
     )
-    verify_sources: bool = Field(
-        default=True,
-        description="Verify prompt source authenticity"
-    )
+    verify_sources: bool = Field(default=True, description="Verify prompt source authenticity")
 
 
 class ResearchConfig(BaseModel):
     """AI research assistant configuration."""
-    
+
     model: str = Field(default="gpt-4", description="AI model to use")
     temperature: float = Field(default=0.7, description="Model temperature")
     max_tokens: int = Field(default=2000, description="Max response tokens")
@@ -80,7 +69,7 @@ class ResearchConfig(BaseModel):
 
 class OutputConfig(BaseModel):
     """Output configuration."""
-    
+
     format: str = Field(default="human", description="Default output format")
     color: bool = Field(default=True, description="Enable colored output")
     verbose: bool = Field(default=False, description="Verbose output")
@@ -89,7 +78,7 @@ class OutputConfig(BaseModel):
 
 class SafetyConfig(BaseModel):
     """Safety controls configuration."""
-    
+
     dry_run: bool = Field(default=False, description="Dry run mode")
     rate_limit: bool = Field(default=True, description="Enable rate limiting")
     max_parallel: int = Field(default=10, description="Max parallel operations")
@@ -99,27 +88,30 @@ class SafetyConfig(BaseModel):
 
 class DatabaseConfig(BaseModel):
     """Database configuration."""
-    
+
     url: str = Field(
         default="sqlite+aiosqlite:///~/.gibson/gibson.db",
         description="Database URL",
     )
     pool_size: int = Field(default=5, description="Connection pool size")
     max_overflow: int = Field(default=10, description="Max overflow connections")
+    validate_on_init: bool = Field(default=True, description="Validate schema on initialization")
+    auto_create_tables: bool = Field(default=True, description="Automatically create missing tables")
+    backup_on_migration: bool = Field(default=True, description="Backup database before migrations")
 
 
 class Config(BaseSettings):
     """Main configuration model with environment variable support."""
-    
+
     model_config = SettingsConfigDict(
         env_prefix="GIBSON_",
         env_nested_delimiter="__",
         case_sensitive=False,
     )
-    
+
     version: str = Field(default="1.0", description="Config version")
     profile: str = Field(default="default", description="Active profile")
-    
+
     api: APIConfig = Field(default_factory=APIConfig)
     registry: RegistryConfig = Field(default_factory=RegistryConfig)
     prompt_registry: PromptRegistryConfig = Field(default_factory=PromptRegistryConfig)
@@ -127,7 +119,7 @@ class Config(BaseSettings):
     output: OutputConfig = Field(default_factory=OutputConfig)
     safety: SafetyConfig = Field(default_factory=SafetyConfig)
     database: DatabaseConfig = Field(default_factory=DatabaseConfig)
-    
+
     # Paths
     data_dir: Optional[Path] = Field(default=None, description="Data directory")
     cache_dir: Optional[Path] = Field(default=None, description="Cache directory")
@@ -136,22 +128,22 @@ class Config(BaseSettings):
 
 class ConfigManager:
     """Hierarchical configuration manager."""
-    
+
     def __init__(self, config_file: Optional[Path] = None) -> None:
         """
         Initialize configuration manager.
-        
+
         Args:
             config_file: Optional explicit config file path
         """
         self.config_file = config_file
         self.config = self._load_config()
         self._setup_directories()
-    
+
     def _load_config(self) -> Config:
         """
         Load configuration with hierarchical precedence.
-        
+
         Precedence (highest to lowest):
         1. Environment variables (GIBSON_*)
         2. Explicit config file (--config flag)
@@ -161,38 +153,40 @@ class ConfigManager:
         6. Default values
         """
         config_data: Dict[str, Any] = {}
-        
+
         # Load system config
         system_config = Path("/etc/gibson/config.yaml")
         if system_config.exists():
             logger.debug(f"Loading system config: {system_config}")
             config_data = self._merge_configs(config_data, self._load_yaml(system_config))
-        
+
         # Load user config
         user_config = Path(user_config_dir("gibson")) / "config.yaml"
         if user_config.exists():
             logger.debug(f"Loading user config: {user_config}")
             config_data = self._merge_configs(config_data, self._load_yaml(user_config))
-        
+
         # Load project config
         project_config = Path.cwd() / ".gibson" / "config.yaml"
         if project_config.exists():
             logger.debug(f"Loading project config: {project_config}")
             config_data = self._merge_configs(config_data, self._load_yaml(project_config))
-        
+
         # Load explicit config file
         if self.config_file and self.config_file.exists():
             logger.debug(f"Loading explicit config: {self.config_file}")
             config_data = self._merge_configs(config_data, self._load_yaml(self.config_file))
-        
+
         # Create Config object (environment variables override via Pydantic)
         try:
-            return Config(**config_data)
+            config = Config(**config_data)
+            logger.debug(f"Loaded configuration: database_url={config.database.url}")
+            return config
         except ValidationError as e:
             logger.error(f"Configuration validation failed: {e}")
             # Return default config on validation error
             return Config()
-    
+
     def _load_yaml(self, path: Path) -> Dict[str, Any]:
         """Load YAML configuration file."""
         try:
@@ -201,43 +195,57 @@ class ConfigManager:
         except Exception as e:
             logger.warning(f"Failed to load config from {path}: {e}")
             return {}
-    
+
     def _merge_configs(self, base: Dict[str, Any], update: Dict[str, Any]) -> Dict[str, Any]:
         """Deep merge configuration dictionaries."""
         result = base.copy()
-        
+
         for key, value in update.items():
             if key in result and isinstance(result[key], dict) and isinstance(value, dict):
                 result[key] = self._merge_configs(result[key], value)
             else:
                 result[key] = value
-        
+
         return result
-    
+
     def _setup_directories(self) -> None:
         """Setup required directories."""
+        # Ensure ~/.gibson directory exists first
+        gibson_dir = Path.home() / ".gibson"
+        gibson_dir.mkdir(parents=True, exist_ok=True)
+        
         # Set default directories if not configured
         if not self.config.data_dir:
-            self.config.data_dir = Path.home() / ".gibson" / "data"
+            self.config.data_dir = gibson_dir / "data"
         if not self.config.cache_dir:
-            self.config.cache_dir = Path.home() / ".gibson" / "cache"
+            self.config.cache_dir = gibson_dir / "cache"
         if not self.config.module_dir:
-            self.config.module_dir = Path.home() / ".gibson" / "modules"
-        
+            self.config.module_dir = gibson_dir / "modules"
+
         # Create directories
         for dir_path in [self.config.data_dir, self.config.cache_dir, self.config.module_dir]:
             if dir_path:
                 dir_path.mkdir(parents=True, exist_ok=True)
                 logger.debug(f"Ensured directory exists: {dir_path}")
-    
+        
+        # BULLETPROOF: Force database to always use ~/.gibson/gibson.db
+        canonical_db_path = gibson_dir / "gibson.db"
+        canonical_url = f"sqlite+aiosqlite:///{canonical_db_path}"
+        
+        if self.config.database.url != canonical_url:
+            logger.info(f"Forcing database path from '{self.config.database.url}' to canonical location: '{canonical_url}'")
+            self.config.database.url = canonical_url
+        
+        logger.info(f"Database will be located at: {canonical_db_path}")
+
     def save(self, path: Optional[Path] = None) -> None:
         """Save current configuration to file."""
         save_path = path or self.config_file or Path.home() / ".config" / "gibson" / "config.yaml"
         save_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         # Convert config to serializable format
         config_data = self.config.model_dump()
-        
+
         # Convert Path objects to strings
         def convert_paths(obj):
             if isinstance(obj, dict):
@@ -248,12 +256,12 @@ class ConfigManager:
                 return str(obj)
             else:
                 return obj
-        
+
         serializable_config = convert_paths(config_data)
-        
+
         with open(save_path, "w") as f:
             yaml.dump(serializable_config, f, default_flow_style=False)
-        
+
         logger.info(f"Configuration saved to: {save_path}")
 
 
@@ -264,10 +272,10 @@ _config_manager: Optional[ConfigManager] = None
 def get_config(config_file: Optional[Path] = None) -> Config:
     """
     Get global configuration instance.
-    
+
     Args:
         config_file: Optional explicit config file path
-        
+
     Returns:
         Config instance with hierarchical configuration loaded
     """

@@ -12,7 +12,7 @@ from .output import *
 __all__ = [
     # Re-export command modules
     "scan",
-    "module", 
+    "module",
     "target",
     "auth",
     "research",
@@ -22,7 +22,6 @@ __all__ = [
     "health",
     "console",
     "payloads",
-    
     # CLI utilities
     "errors",
     "output",

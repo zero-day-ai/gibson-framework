@@ -63,7 +63,7 @@ async def test_init_creates_alembic_dir(migration_manager, tmp_path, monkeypatch
     # Create a temporary alembic directory path that doesn't exist
     fake_alembic = tmp_path / "alembic"
     migration_manager.alembic_dir = fake_alembic
-    
+
     with patch("alembic.command.init") as mock_init:
         await migration_manager.init()
         # Should not call init if directory exists
@@ -76,17 +76,13 @@ async def test_create_migration(migration_manager):
     """Test migration creation."""
     with patch("subprocess.run") as mock_run:
         mock_run.return_value = Mock(
-            returncode=0,
-            stdout="Generating /path/to/abc123_test_migration.py ... done",
-            stderr=""
+            returncode=0, stdout="Generating /path/to/abc123_test_migration.py ... done", stderr=""
         )
-        
+
         revision = await migration_manager.create_migration(
-            message="Test migration",
-            autogenerate=True,
-            sql=False
+            message="Test migration", autogenerate=True, sql=False
         )
-        
+
         assert revision == "abc123"
         mock_run.assert_called_once()
         args = mock_run.call_args[0][0]
@@ -101,18 +97,12 @@ async def test_create_migration(migration_manager):
 async def test_create_migration_with_sql(migration_manager):
     """Test migration creation with SQL output."""
     with patch("subprocess.run") as mock_run:
-        mock_run.return_value = Mock(
-            returncode=0,
-            stdout="Generating SQL script...",
-            stderr=""
-        )
-        
+        mock_run.return_value = Mock(returncode=0, stdout="Generating SQL script...", stderr="")
+
         await migration_manager.create_migration(
-            message="SQL migration",
-            autogenerate=False,
-            sql=True
+            message="SQL migration", autogenerate=False, sql=True
         )
-        
+
         args = mock_run.call_args[0][0]
         assert "--sql" in args
         assert "--autogenerate" not in args
@@ -122,12 +112,8 @@ async def test_create_migration_with_sql(migration_manager):
 async def test_create_migration_failure(migration_manager):
     """Test migration creation failure."""
     with patch("subprocess.run") as mock_run:
-        mock_run.return_value = Mock(
-            returncode=1,
-            stdout="",
-            stderr="Error creating migration"
-        )
-        
+        mock_run.return_value = Mock(returncode=1, stdout="", stderr="Error creating migration")
+
         with pytest.raises(RuntimeError, match="Failed to create migration"):
             await migration_manager.create_migration("Failed migration")
 
@@ -137,23 +123,19 @@ async def test_upgrade(migration_manager):
     """Test database upgrade."""
     with patch.object(migration_manager, "get_current_revision") as mock_current:
         mock_current.return_value = "abc123"
-        
+
         with patch.object(migration_manager, "_log_migration_audit") as mock_audit:
             with patch("subprocess.run") as mock_run:
-                mock_run.return_value = Mock(
-                    returncode=0,
-                    stdout="Upgrade complete",
-                    stderr=""
-                )
-                
+                mock_run.return_value = Mock(returncode=0, stdout="Upgrade complete", stderr="")
+
                 await migration_manager.upgrade()
-                
+
                 mock_run.assert_called_once()
                 args = mock_run.call_args[0][0]
                 assert "alembic" in args
                 assert "upgrade" in args
                 assert "head" in args
-                
+
                 # Check audit logging
                 mock_audit.assert_called_once()
                 audit_kwargs = mock_audit.call_args[1]
@@ -168,15 +150,11 @@ async def test_upgrade_failure(migration_manager):
     """Test database upgrade failure."""
     with patch.object(migration_manager, "get_current_revision") as mock_current:
         mock_current.return_value = "abc123"
-        
+
         with patch.object(migration_manager, "_log_migration_audit"):
             with patch("subprocess.run") as mock_run:
-                mock_run.return_value = Mock(
-                    returncode=1,
-                    stdout="",
-                    stderr="Migration failed"
-                )
-                
+                mock_run.return_value = Mock(returncode=1, stdout="", stderr="Migration failed")
+
                 with pytest.raises(RuntimeError, match="Failed to upgrade database"):
                     await migration_manager.upgrade()
 
@@ -186,23 +164,19 @@ async def test_downgrade(migration_manager):
     """Test database downgrade."""
     with patch.object(migration_manager, "get_current_revision") as mock_current:
         mock_current.return_value = "def456"
-        
+
         with patch.object(migration_manager, "_log_migration_audit") as mock_audit:
             with patch("subprocess.run") as mock_run:
-                mock_run.return_value = Mock(
-                    returncode=0,
-                    stdout="Downgrade complete",
-                    stderr=""
-                )
-                
+                mock_run.return_value = Mock(returncode=0, stdout="Downgrade complete", stderr="")
+
                 await migration_manager.downgrade("-1")
-                
+
                 mock_run.assert_called_once()
                 args = mock_run.call_args[0][0]
                 assert "alembic" in args
                 assert "downgrade" in args
                 assert "-1" in args
-                
+
                 # Check audit logging
                 mock_audit.assert_called_once()
                 audit_kwargs = mock_audit.call_args[1]
@@ -214,22 +188,22 @@ async def test_downgrade(migration_manager):
 async def test_get_current_revision(migration_manager, temp_db, monkeypatch):
     """Test getting current database revision."""
     monkeypatch.setenv("GIBSON_DATABASE_URL", f"sqlite+aiosqlite:///{temp_db}")
-    
+
     with patch("alembic.runtime.migration.MigrationContext.configure") as mock_context:
         mock_ctx = Mock()
         mock_ctx.get_current_revision.return_value = "abc123"
         mock_context.return_value = mock_ctx
-        
+
         # Need to mock the engine connection
         engine = await migration_manager.get_engine()
         with patch.object(engine, "connect") as mock_connect:
             mock_conn = AsyncMock()
             mock_conn.run_sync = AsyncMock(return_value="abc123")
             mock_connect.return_value.__aenter__.return_value = mock_conn
-            
+
             revision = await migration_manager.get_current_revision()
             assert revision == "abc123"
-        
+
         await engine.dispose()
 
 
@@ -240,7 +214,7 @@ async def test_get_head_revision(migration_manager):
         mock_dir = Mock()
         mock_dir.get_current_head.return_value = "xyz789"
         mock_script.return_value = mock_dir
-        
+
         head = await migration_manager.get_head_revision()
         assert head == "xyz789"
 
@@ -250,30 +224,27 @@ async def test_get_status(migration_manager):
     """Test getting comprehensive migration status."""
     with patch.object(migration_manager, "get_current_revision") as mock_current:
         mock_current.return_value = "abc123"
-        
+
         with patch.object(migration_manager, "get_head_revision") as mock_head:
             mock_head.return_value = "xyz789"
-            
+
             with patch.object(migration_manager, "get_pending_migrations") as mock_pending:
                 pending_migration = MigrationInfo(
-                    revision="def456",
-                    description="Test migration",
-                    is_head=False,
-                    is_current=False
+                    revision="def456", description="Test migration", is_head=False, is_current=False
                 )
                 mock_pending.return_value = [pending_migration]
-                
+
                 with patch.object(migration_manager, "get_migration_history") as mock_history:
                     history_migration = MigrationInfo(
                         revision="abc123",
                         description="Previous migration",
                         is_head=False,
-                        is_current=True
+                        is_current=True,
                     )
                     mock_history.return_value = [history_migration]
-                    
+
                     status = await migration_manager.get_status()
-                    
+
                     assert isinstance(status, MigrationStatus)
                     assert status.current_revision == "abc123"
                     assert status.head_revision == "xyz789"
@@ -289,17 +260,13 @@ async def test_check_migration_needed(migration_manager):
     with patch.object(migration_manager, "get_status") as mock_status:
         # Test when migration is needed
         mock_status.return_value = MigrationStatus(
-            current_revision="abc123",
-            head_revision="xyz789",
-            needs_migration=True
+            current_revision="abc123", head_revision="xyz789", needs_migration=True
         )
         assert await migration_manager.check_migration_needed() is True
-        
+
         # Test when migration is not needed
         mock_status.return_value = MigrationStatus(
-            current_revision="xyz789",
-            head_revision="xyz789",
-            needs_migration=False
+            current_revision="xyz789", head_revision="xyz789", needs_migration=False
         )
         assert await migration_manager.check_migration_needed() is False
 
@@ -313,10 +280,10 @@ async def test_auto_upgrade(migration_manager):
             mock_check.return_value = True
             await migration_manager.auto_upgrade()
             mock_upgrade.assert_called_once()
-            
+
             # Reset mock
             mock_upgrade.reset_mock()
-            
+
             # Test when migration is not needed
             mock_check.return_value = False
             await migration_manager.auto_upgrade()
@@ -327,14 +294,10 @@ async def test_auto_upgrade(migration_manager):
 async def test_stamp(migration_manager):
     """Test stamping database with revision."""
     with patch("subprocess.run") as mock_run:
-        mock_run.return_value = Mock(
-            returncode=0,
-            stdout="Stamped to head",
-            stderr=""
-        )
-        
+        mock_run.return_value = Mock(returncode=0, stdout="Stamped to head", stderr="")
+
         await migration_manager.stamp("head")
-        
+
         mock_run.assert_called_once()
         args = mock_run.call_args[0][0]
         assert "alembic" in args
@@ -346,12 +309,8 @@ async def test_stamp(migration_manager):
 async def test_stamp_failure(migration_manager):
     """Test stamp failure."""
     with patch("subprocess.run") as mock_run:
-        mock_run.return_value = Mock(
-            returncode=1,
-            stdout="",
-            stderr="Stamp failed"
-        )
-        
+        mock_run.return_value = Mock(returncode=1, stdout="", stderr="Stamp failed")
+
         with pytest.raises(RuntimeError, match="Failed to stamp database"):
             await migration_manager.stamp("bad_revision")
 
@@ -365,20 +324,20 @@ async def test_verify_migrations(migration_manager):
         success, issues = await migration_manager.verify_migrations()
         assert success is False
         assert "Alembic directory not found" in issues[0]
-    
+
     # Test successful verification
     with patch.object(migration_manager.alembic_dir, "exists") as mock_exists:
         mock_exists.return_value = True
-        
+
         with patch.object(migration_manager, "get_current_revision") as mock_current:
             mock_current.return_value = "abc123"
-            
+
             with patch.object(migration_manager, "get_head_revision") as mock_head:
                 mock_head.return_value = "xyz789"
-                
+
                 with patch.object(migration_manager, "get_pending_migrations") as mock_pending:
                     mock_pending.return_value = []
-                    
+
                     success, issues = await migration_manager.verify_migrations()
                     assert success is True
                     assert len(issues) == 0
@@ -388,27 +347,27 @@ async def test_verify_migrations(migration_manager):
 async def test_log_migration_audit(migration_manager, temp_db, monkeypatch):
     """Test migration audit logging."""
     monkeypatch.setenv("GIBSON_DATABASE_URL", f"sqlite+aiosqlite:///{temp_db}")
-    
+
     with patch.object(migration_manager, "get_engine") as mock_engine:
         mock_conn = AsyncMock()
         mock_conn.execute = AsyncMock()
         mock_conn.commit = AsyncMock()
-        
+
         mock_engine_obj = AsyncMock()
         mock_engine_obj.connect.return_value.__aenter__.return_value = mock_conn
         mock_engine.return_value = mock_engine_obj
-        
+
         with patch("getpass.getuser") as mock_user:
             mock_user.return_value = "testuser"
-            
+
             await migration_manager._log_migration_audit(
                 operation="upgrade",
                 from_revision="abc123",
                 to_revision="def456",
                 duration_ms=1500,
-                status="success"
+                status="success",
             )
-            
+
             # Verify audit was logged
             mock_conn.execute.assert_called_once()
             call_args = mock_conn.execute.call_args[0]
@@ -419,15 +378,13 @@ async def test_log_migration_audit(migration_manager, temp_db, monkeypatch):
 async def test_log_migration_audit_failure(migration_manager, temp_db, monkeypatch):
     """Test that audit logging failure doesn't break migration."""
     monkeypatch.setenv("GIBSON_DATABASE_URL", f"sqlite+aiosqlite:///{temp_db}")
-    
+
     with patch.object(migration_manager, "get_engine") as mock_engine:
         # Make engine.connect() raise an exception
         mock_engine.side_effect = Exception("Database error")
-        
+
         # Should not raise, just log warning
         await migration_manager._log_migration_audit(
-            operation="upgrade",
-            from_revision="abc123",
-            to_revision="def456"
+            operation="upgrade", from_revision="abc123", to_revision="def456"
         )
         # No exception should be raised

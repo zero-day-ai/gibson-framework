@@ -48,20 +48,16 @@ class ProviderEnvironmentConfig(GibsonBaseModel):
     provider: LLMProvider = Field(description="LLM provider identifier")
     status: ProviderStatus = Field(description="Configuration status")
     detected_variables: dict[str, str] = Field(
-        default_factory=dict,
-        description="Environment variables detected for this provider"
+        default_factory=dict, description="Environment variables detected for this provider"
     )
     missing_variables: list[str] = Field(
-        default_factory=list,
-        description="Required environment variables that are missing"
+        default_factory=list, description="Required environment variables that are missing"
     )
     validation_errors: list[str] = Field(
-        default_factory=list,
-        description="Validation errors for detected variables"
+        default_factory=list, description="Validation errors for detected variables"
     )
     setup_instructions: Optional[str] = Field(
-        default=None,
-        description="Setup instructions for missing configuration"
+        default=None, description="Setup instructions for missing configuration"
     )
 
     @computed_field
@@ -89,13 +85,11 @@ class EnvironmentDiscoveryResult(ValidatedModel):
     missing_providers: int = Field(description="Number of providers with no configuration")
 
     provider_configs: dict[LLMProvider, ProviderEnvironmentConfig] = Field(
-        default_factory=dict,
-        description="Configuration details for each provider"
+        default_factory=dict, description="Configuration details for each provider"
     )
 
     recommendations: list[str] = Field(
-        default_factory=list,
-        description="Setup recommendations for missing providers"
+        default_factory=list, description="Setup recommendations for missing providers"
     )
 
     @computed_field
@@ -130,14 +124,14 @@ class EnvironmentManager:
                 required=True,
                 description="OpenAI API key",
                 example="sk-1234567890abcdef...",
-                validation_pattern=r"^sk-[a-zA-Z0-9]{48}$"
+                validation_pattern=r"^sk-[a-zA-Z0-9]{48}$",
             ),
             EnvironmentVariablePattern(
                 name="OPENAI_ORG_ID",
                 required=False,
                 description="OpenAI organization ID",
                 example="org-1234567890abcdef",
-                validation_pattern=r"^org-[a-zA-Z0-9]+$"
+                validation_pattern=r"^org-[a-zA-Z0-9]+$",
             ),
             EnvironmentVariablePattern(
                 name="OPENAI_API_BASE",
@@ -145,24 +139,23 @@ class EnvironmentManager:
                 description="Custom OpenAI API base URL",
                 example="https://api.openai.com/v1",
                 validation_pattern=r"^https?://.*",
-                secret=False
+                secret=False,
             ),
             EnvironmentVariablePattern(
                 name="OPENAI_PROJECT",
                 required=False,
                 description="OpenAI project ID",
                 example="proj_1234567890abcdef",
-                validation_pattern=r"^proj_[a-zA-Z0-9]+$"
+                validation_pattern=r"^proj_[a-zA-Z0-9]+$",
             ),
         ],
-
         LLMProvider.ANTHROPIC: [
             EnvironmentVariablePattern(
                 name="ANTHROPIC_API_KEY",
                 required=True,
                 description="Anthropic API key",
                 example="sk-ant-1234567890abcdef...",
-                validation_pattern=r"^sk-ant-[a-zA-Z0-9\-_]{48,}$"
+                validation_pattern=r"^sk-ant-[a-zA-Z0-9\-_]{48,}$",
             ),
             EnvironmentVariablePattern(
                 name="ANTHROPIC_API_BASE",
@@ -170,17 +163,16 @@ class EnvironmentManager:
                 description="Custom Anthropic API base URL",
                 example="https://api.anthropic.com",
                 validation_pattern=r"^https?://.*",
-                secret=False
+                secret=False,
             ),
         ],
-
         LLMProvider.AZURE_OPENAI: [
             EnvironmentVariablePattern(
                 name="AZURE_API_KEY",
                 required=True,
                 description="Azure OpenAI API key",
                 example="1234567890abcdef1234567890abcdef",
-                validation_pattern=r"^[a-f0-9]{32}$"
+                validation_pattern=r"^[a-f0-9]{32}$",
             ),
             EnvironmentVariablePattern(
                 name="AZURE_API_BASE",
@@ -188,7 +180,7 @@ class EnvironmentManager:
                 description="Azure OpenAI endpoint",
                 example="https://your-resource.openai.azure.com/",
                 validation_pattern=r"^https://.*\.openai\.azure\.com/?$",
-                secret=False
+                secret=False,
             ),
             EnvironmentVariablePattern(
                 name="AZURE_API_VERSION",
@@ -196,26 +188,24 @@ class EnvironmentManager:
                 description="Azure OpenAI API version",
                 example="2024-02-01",
                 validation_pattern=r"^\d{4}-\d{2}-\d{2}$",
-                secret=False
+                secret=False,
             ),
             EnvironmentVariablePattern(
                 name="AZURE_AD_TOKEN",
                 required=False,
                 description="Azure AD authentication token",
-                example="eyJ0eXAiOiJKV1QiLCJhbGci..."
+                example="eyJ0eXAiOiJKV1QiLCJhbGci...",
             ),
         ],
-
         LLMProvider.GOOGLE_AI: [
             EnvironmentVariablePattern(
                 name="GOOGLE_API_KEY",
                 required=True,
                 description="Google AI API key",
                 example="AIzaSyDaGmWKa4JsXZ-HjGw-12345678901234",
-                validation_pattern=r"^AIza[a-zA-Z0-9\-_]{35,}$"
+                validation_pattern=r"^AIza[a-zA-Z0-9\-_]{35,}$",
             ),
         ],
-
         LLMProvider.VERTEX_AI: [
             EnvironmentVariablePattern(
                 name="VERTEX_PROJECT",
@@ -223,7 +213,7 @@ class EnvironmentManager:
                 description="Google Cloud project ID",
                 example="my-project-12345",
                 validation_pattern=r"^[a-z][a-z0-9\-]{4,28}[a-z0-9]$",
-                secret=False
+                secret=False,
             ),
             EnvironmentVariablePattern(
                 name="VERTEX_LOCATION",
@@ -231,30 +221,29 @@ class EnvironmentManager:
                 description="Vertex AI location/region",
                 example="us-central1",
                 validation_pattern=r"^[a-z0-9\-]+$",
-                secret=False
+                secret=False,
             ),
             EnvironmentVariablePattern(
                 name="GOOGLE_APPLICATION_CREDENTIALS",
                 required=False,
                 description="Path to Google Cloud service account key file",
                 example="/path/to/service-account-key.json",
-                secret=False
+                secret=False,
             ),
         ],
-
         LLMProvider.BEDROCK: [
             EnvironmentVariablePattern(
                 name="AWS_ACCESS_KEY_ID",
                 required=True,
                 description="AWS access key ID",
                 example="AKIAIOSFODNN7EXAMPLE",
-                validation_pattern=r"^AKIA[A-Z0-9]{16}$"
+                validation_pattern=r"^AKIA[A-Z0-9]{16}$",
             ),
             EnvironmentVariablePattern(
                 name="AWS_SECRET_ACCESS_KEY",
                 required=True,
                 description="AWS secret access key",
-                example="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+                example="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
             ),
             EnvironmentVariablePattern(
                 name="AWS_REGION",
@@ -262,73 +251,66 @@ class EnvironmentManager:
                 description="AWS region",
                 example="us-east-1",
                 validation_pattern=r"^[a-z0-9\-]+$",
-                secret=False
+                secret=False,
             ),
             EnvironmentVariablePattern(
                 name="AWS_SESSION_TOKEN",
                 required=False,
                 description="AWS session token for temporary credentials",
-                example="IQoJb3JpZ2luX2VjEND..."
+                example="IQoJb3JpZ2luX2VjEND...",
             ),
         ],
-
         LLMProvider.COHERE: [
             EnvironmentVariablePattern(
                 name="COHERE_API_KEY",
                 required=True,
                 description="Cohere API key",
-                example="1234567890abcdef1234567890abcdef"
+                example="1234567890abcdef1234567890abcdef",
             ),
         ],
-
         LLMProvider.REPLICATE: [
             EnvironmentVariablePattern(
                 name="REPLICATE_API_TOKEN",
                 required=True,
                 description="Replicate API token",
                 example="r8_1234567890abcdef...",
-                validation_pattern=r"^r8_[a-zA-Z0-9]{40}$"
+                validation_pattern=r"^r8_[a-zA-Z0-9]{40}$",
             ),
         ],
-
         LLMProvider.HUGGINGFACE: [
             EnvironmentVariablePattern(
                 name="HUGGINGFACE_API_KEY",
                 required=True,
                 description="Hugging Face API token",
                 example="hf_1234567890abcdef...",
-                validation_pattern=r"^hf_[a-zA-Z0-9]{37}$"
+                validation_pattern=r"^hf_[a-zA-Z0-9]{37}$",
             ),
         ],
-
         LLMProvider.GROQ: [
             EnvironmentVariablePattern(
                 name="GROQ_API_KEY",
                 required=True,
                 description="Groq API key",
                 example="gsk_1234567890abcdef...",
-                validation_pattern=r"^gsk_[a-zA-Z0-9]{52}$"
+                validation_pattern=r"^gsk_[a-zA-Z0-9]{52}$",
             ),
         ],
-
         LLMProvider.MISTRAL: [
             EnvironmentVariablePattern(
                 name="MISTRAL_API_KEY",
                 required=True,
                 description="Mistral AI API key",
-                example="1234567890abcdef1234567890abcdef"
+                example="1234567890abcdef1234567890abcdef",
             ),
         ],
-
         LLMProvider.TOGETHER_AI: [
             EnvironmentVariablePattern(
                 name="TOGETHER_API_KEY",
                 required=True,
                 description="Together AI API key",
-                example="1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+                example="1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
             ),
         ],
-
         LLMProvider.OLLAMA: [
             EnvironmentVariablePattern(
                 name="OLLAMA_BASE_URL",
@@ -336,10 +318,9 @@ class EnvironmentManager:
                 description="Ollama base URL",
                 example="http://localhost:11434",
                 validation_pattern=r"^https?://.*",
-                secret=False
+                secret=False,
             ),
         ],
-
         LLMProvider.VLLM: [
             EnvironmentVariablePattern(
                 name="VLLM_BASE_URL",
@@ -347,7 +328,7 @@ class EnvironmentManager:
                 description="vLLM server base URL",
                 example="http://localhost:8000/v1",
                 validation_pattern=r"^https?://.*",
-                secret=False
+                secret=False,
             ),
         ],
     }
@@ -363,8 +344,7 @@ class EnvironmentManager:
         logger.debug(f"Initialized EnvironmentManager with {len(self.environment)} variables")
 
     async def discover_providers(
-        self,
-        providers: Optional[list[LLMProvider]] = None
+        self, providers: Optional[list[LLMProvider]] = None
     ) -> EnvironmentDiscoveryResult:
         """
         Discover and validate LLM provider configurations from environment.
@@ -406,12 +386,14 @@ class EnvironmentManager:
 
         # Generate overall recommendations
         if configured_count == 0:
-            recommendations.insert(0,
-                "⚠️  No LLM providers are configured. Set up at least one provider to use Gibson's AI features."
+            recommendations.insert(
+                0,
+                "⚠️  No LLM providers are configured. Set up at least one provider to use Gibson's AI features.",
             )
         elif partial_count > 0:
-            recommendations.insert(0,
-                f"📝 {partial_count} provider(s) have partial configuration. Complete setup for better reliability."
+            recommendations.insert(
+                0,
+                f"📝 {partial_count} provider(s) have partial configuration. Complete setup for better reliability.",
             )
 
         result = EnvironmentDiscoveryResult(
@@ -420,7 +402,7 @@ class EnvironmentManager:
             partially_configured=partial_count,
             missing_providers=missing_count,
             provider_configs=provider_configs,
-            recommendations=recommendations
+            recommendations=recommendations,
         )
 
         logger.info(
@@ -438,7 +420,7 @@ class EnvironmentManager:
             return ProviderEnvironmentConfig(
                 provider=provider,
                 status=ProviderStatus.DISABLED,
-                setup_instructions=f"Provider {provider} is not yet supported for environment discovery"
+                setup_instructions=f"Provider {provider} is not yet supported for environment discovery",
             )
 
         detected_vars: dict[str, str] = {}
@@ -476,7 +458,7 @@ class EnvironmentManager:
             detected_variables=detected_vars,
             missing_variables=missing_vars,
             validation_errors=validation_errors,
-            setup_instructions=setup_instructions
+            setup_instructions=setup_instructions,
         )
 
     def _determine_status(
@@ -484,7 +466,7 @@ class EnvironmentManager:
         patterns: list[EnvironmentVariablePattern],
         detected_vars: dict[str, str],
         missing_vars: list[str],
-        validation_errors: list[str]
+        validation_errors: list[str],
     ) -> ProviderStatus:
         """Determine provider configuration status."""
         required_patterns = [p for p in patterns if p.required]
@@ -521,70 +503,82 @@ class EnvironmentManager:
         self,
         provider: LLMProvider,
         patterns: list[EnvironmentVariablePattern],
-        missing_vars: list[str]
+        missing_vars: list[str],
     ) -> str:
         """Generate setup instructions for missing provider configuration."""
         instructions = [f"\n🔧 Setup instructions for {provider.value}:"]
 
         if provider == LLMProvider.OPENAI:
-            instructions.extend([
-                "1. Get your API key from https://platform.openai.com/api-keys",
-                "2. Set environment variable:",
-                "   export OPENAI_API_KEY='sk-your-key-here'",
-                "",
-                "Optional organization/project setup:",
-                "   export OPENAI_ORG_ID='org-your-org-id'",
-                "   export OPENAI_PROJECT='proj-your-project-id'"
-            ])
+            instructions.extend(
+                [
+                    "1. Get your API key from https://platform.openai.com/api-keys",
+                    "2. Set environment variable:",
+                    "   export OPENAI_API_KEY='sk-your-key-here'",
+                    "",
+                    "Optional organization/project setup:",
+                    "   export OPENAI_ORG_ID='org-your-org-id'",
+                    "   export OPENAI_PROJECT='proj-your-project-id'",
+                ]
+            )
 
         elif provider == LLMProvider.ANTHROPIC:
-            instructions.extend([
-                "1. Get your API key from https://console.anthropic.com/",
-                "2. Set environment variable:",
-                "   export ANTHROPIC_API_KEY='sk-ant-your-key-here'"
-            ])
+            instructions.extend(
+                [
+                    "1. Get your API key from https://console.anthropic.com/",
+                    "2. Set environment variable:",
+                    "   export ANTHROPIC_API_KEY='sk-ant-your-key-here'",
+                ]
+            )
 
         elif provider == LLMProvider.AZURE_OPENAI:
-            instructions.extend([
-                "1. Create Azure OpenAI resource in Azure portal",
-                "2. Set required environment variables:",
-                "   export AZURE_API_KEY='your-32-char-key'",
-                "   export AZURE_API_BASE='https://your-resource.openai.azure.com/'",
-                "",
-                "Optional API version:",
-                "   export AZURE_API_VERSION='2024-02-01'"
-            ])
+            instructions.extend(
+                [
+                    "1. Create Azure OpenAI resource in Azure portal",
+                    "2. Set required environment variables:",
+                    "   export AZURE_API_KEY='your-32-char-key'",
+                    "   export AZURE_API_BASE='https://your-resource.openai.azure.com/'",
+                    "",
+                    "Optional API version:",
+                    "   export AZURE_API_VERSION='2024-02-01'",
+                ]
+            )
 
         elif provider == LLMProvider.GOOGLE_AI:
-            instructions.extend([
-                "1. Get API key from https://aistudio.google.com/app/apikey",
-                "2. Set environment variable:",
-                "   export GOOGLE_API_KEY='AIza-your-key-here'"
-            ])
+            instructions.extend(
+                [
+                    "1. Get API key from https://aistudio.google.com/app/apikey",
+                    "2. Set environment variable:",
+                    "   export GOOGLE_API_KEY='AIza-your-key-here'",
+                ]
+            )
 
         elif provider == LLMProvider.VERTEX_AI:
-            instructions.extend([
-                "1. Set up Google Cloud project and enable Vertex AI API",
-                "2. Set required environment variables:",
-                "   export VERTEX_PROJECT='your-project-id'",
-                "   export VERTEX_LOCATION='us-central1'",
-                "",
-                "3. Authentication (choose one):",
-                "   - Service account: export GOOGLE_APPLICATION_CREDENTIALS='/path/to/key.json'",
-                "   - Default credentials: gcloud auth application-default login"
-            ])
+            instructions.extend(
+                [
+                    "1. Set up Google Cloud project and enable Vertex AI API",
+                    "2. Set required environment variables:",
+                    "   export VERTEX_PROJECT='your-project-id'",
+                    "   export VERTEX_LOCATION='us-central1'",
+                    "",
+                    "3. Authentication (choose one):",
+                    "   - Service account: export GOOGLE_APPLICATION_CREDENTIALS='/path/to/key.json'",
+                    "   - Default credentials: gcloud auth application-default login",
+                ]
+            )
 
         elif provider == LLMProvider.BEDROCK:
-            instructions.extend([
-                "1. Configure AWS credentials (choose one):",
-                "   - Environment variables:",
-                "     export AWS_ACCESS_KEY_ID='AKIA...'",
-                "     export AWS_SECRET_ACCESS_KEY='your-secret-key'",
-                "     export AWS_REGION='us-east-1'",
-                "",
-                "   - AWS CLI: aws configure",
-                "   - IAM roles (for EC2/ECS)"
-            ])
+            instructions.extend(
+                [
+                    "1. Configure AWS credentials (choose one):",
+                    "   - Environment variables:",
+                    "     export AWS_ACCESS_KEY_ID='AKIA...'",
+                    "     export AWS_SECRET_ACCESS_KEY='your-secret-key'",
+                    "     export AWS_REGION='us-east-1'",
+                    "",
+                    "   - AWS CLI: aws configure",
+                    "   - IAM roles (for EC2/ECS)",
+                ]
+            )
 
         else:
             # Generic instructions for other providers
@@ -592,15 +586,19 @@ class EnvironmentManager:
             for pattern in patterns:
                 if pattern.name in missing_vars:
                     required_text = "Required" if pattern.required else "Optional"
-                    instructions.append(f"   export {pattern.name}='...'  # {required_text}: {pattern.description}")
+                    instructions.append(
+                        f"   export {pattern.name}='...'  # {required_text}: {pattern.description}"
+                    )
                     if pattern.example:
                         instructions.append(f"     Example: {pattern.example}")
 
-        instructions.extend([
-            "",
-            "After setting variables, restart your shell or run:",
-            "   source ~/.bashrc  # or ~/.zshrc"
-        ])
+        instructions.extend(
+            [
+                "",
+                "After setting variables, restart your shell or run:",
+                "   source ~/.bashrc  # or ~/.zshrc",
+            ]
+        )
 
         return "\n".join(instructions)
 
@@ -626,7 +624,8 @@ class EnvironmentManager:
         """
         result = await self.discover_providers()
         return [
-            provider for provider, config in result.provider_configs.items()
+            provider
+            for provider, config in result.provider_configs.items()
             if config.status == ProviderStatus.CONFIGURED
         ]
 
@@ -659,7 +658,7 @@ class EnvironmentManager:
                 "   export AZURE_API_KEY='your-key'",
                 "   export AZURE_API_BASE='https://your-resource.openai.azure.com/'",
                 "",
-                "Run 'gibson config llm' for detailed setup instructions."
+                "Run 'gibson config llm' for detailed setup instructions.",
             ]
 
             raise ValueError("\n".join(error_message))
@@ -679,9 +678,7 @@ class EnvironmentManager:
         return self.PROVIDER_PATTERNS.get(provider, [])
 
     async def generate_environment_file(
-        self,
-        providers: Optional[list[LLMProvider]] = None,
-        include_examples: bool = True
+        self, providers: Optional[list[LLMProvider]] = None, include_examples: bool = True
     ) -> str:
         """
         Generate .env file template for LLM providers.
@@ -700,7 +697,7 @@ class EnvironmentManager:
             "# LLM Provider Environment Variables for Gibson Framework",
             "# Copy this file to .env and fill in your actual values",
             "# Load with: export $(cat .env | xargs)",
-            ""
+            "",
         ]
 
         for provider in sorted(providers, key=lambda p: p.value):
@@ -708,11 +705,9 @@ class EnvironmentManager:
             if not patterns:
                 continue
 
-            lines.extend([
-                f"# {provider.value.upper()} Configuration",
-                f"# Provider: {provider.value}",
-                ""
-            ])
+            lines.extend(
+                [f"# {provider.value.upper()} Configuration", f"# Provider: {provider.value}", ""]
+            )
 
             for pattern in patterns:
                 comment_prefix = "# " if not pattern.required else ""
@@ -770,4 +765,3 @@ async def get_configured_llm_providers() -> list[LLMProvider]:
     """
     manager = EnvironmentManager()
     return await manager.get_configured_providers()
-

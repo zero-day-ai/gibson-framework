@@ -4,6 +4,7 @@ import typer
 
 app = typer.Typer(help="Report generation")
 
+
 @app.command()
 def generate():
     """Generate report."""

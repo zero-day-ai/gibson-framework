@@ -22,24 +22,20 @@ from gibson.domains.system import SystemDomain, SystemAttackType, EnumerationMet
 __all__ = [
     # Prompt domain
     "PromptDomain",
-    "EvasionTechnique", 
+    "EvasionTechnique",
     "InjectionType",
-    
     # Data domain
     "DataDomain",
     "PoisoningStrategy",
     "AttackVector",
-    
     # Model domain
     "ModelDomain",
     "FingerprintingTechnique",
     "ModelAttackType",
-    
     # Output domain
     "OutputDomain",
     "EncodingMethod",
     "OutputAttackType",
-    
     # System domain
     "SystemDomain",
     "SystemAttackType",

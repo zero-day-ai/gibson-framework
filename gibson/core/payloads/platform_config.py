@@ -26,12 +26,12 @@ URL_PATTERNS: list[tuple[Pattern, GitPlatform]] = [
 # Platform detection priority order for resolving conflicts
 # When multiple patterns match, this order determines which platform is selected
 PLATFORM_PRIORITY: list[GitPlatform] = [
-    GitPlatform.GITHUB,     # Check first (most common)
-    GitPlatform.GITLAB,     # Second most common
+    GitPlatform.GITHUB,  # Check first (most common)
+    GitPlatform.GITLAB,  # Second most common
     GitPlatform.BITBUCKET,  # Third
-    GitPlatform.GOGS,       # Self-hosted platforms
-    GitPlatform.GITEA,      # Self-hosted platforms
-    GitPlatform.GENERIC     # Fallback
+    GitPlatform.GOGS,  # Self-hosted platforms
+    GitPlatform.GITEA,  # Self-hosted platforms
+    GitPlatform.GENERIC,  # Fallback
 ]
 
 # API endpoint patterns for platform detection via API probing

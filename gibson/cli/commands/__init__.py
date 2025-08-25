@@ -8,6 +8,7 @@ from . import auth
 from . import chain
 from . import report
 from . import config
+
 # from . import health  # Module doesn't exist
 from . import console
 from . import payloads
@@ -22,5 +23,5 @@ __all__ = [
     "config",
     # "health",
     "console",
-    "payloads"
+    "payloads",
 ]

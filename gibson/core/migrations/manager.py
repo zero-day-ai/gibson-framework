@@ -51,7 +51,7 @@ class MigrationManager:
 
     def __init__(self, database_manager: Optional[DatabaseManager] = None):
         """Initialize the migration manager.
-        
+
         Args:
             database_manager: Optional database manager instance
         """
@@ -86,95 +86,80 @@ class MigrationManager:
     async def init(self) -> None:
         """Initialize the migration system."""
         logger.info("Initializing migration system")
-        
+
         # Ensure alembic directory exists
         if not self.alembic_dir.exists():
             logger.info("Creating alembic directory structure")
             command.init(self.config, str(self.alembic_dir))
 
     async def create_migration(
-        self,
-        message: str,
-        autogenerate: bool = True,
-        sql: bool = False
+        self, message: str, autogenerate: bool = True, sql: bool = False
     ) -> str:
         """Create a new migration.
-        
+
         Args:
             message: Migration message
             autogenerate: Whether to autogenerate based on model changes
             sql: Whether to generate SQL script
-            
+
         Returns:
             Revision ID of the created migration
         """
         logger.info(f"Creating migration: {message}")
-        
+
         # Run in subprocess to avoid event loop issues
         cmd = ["alembic", "revision", "-m", message]
         if autogenerate:
             cmd.append("--autogenerate")
         if sql:
             cmd.append("--sql")
-            
-        result = subprocess.run(
-            cmd,
-            cwd=str(self.project_root),
-            capture_output=True,
-            text=True
-        )
-        
+
+        result = subprocess.run(cmd, cwd=str(self.project_root), capture_output=True, text=True)
+
         if result.returncode != 0:
             raise RuntimeError(f"Failed to create migration: {result.stderr}")
-            
+
         # Extract revision ID from output
-        for line in result.stdout.split('\n'):
+        for line in result.stdout.split("\n"):
             if "Generating" in line and ".py" in line:
                 # Extract revision from filename
                 import re
-                match = re.search(r'([a-f0-9]+)_.*\.py', line)
+
+                match = re.search(r"([a-f0-9]+)_.*\.py", line)
                 if match:
                     return match.group(1)
-                    
+
         return "unknown"
 
     async def upgrade(
-        self,
-        revision: str = "head",
-        sql: bool = False,
-        tag: Optional[str] = None
+        self, revision: str = "head", sql: bool = False, tag: Optional[str] = None
     ) -> None:
         """Upgrade database to a revision.
-        
+
         Args:
             revision: Target revision (default: head)
             sql: Whether to generate SQL script only
             tag: Optional tag for the revision
         """
         logger.info(f"Upgrading database to revision: {revision}")
-        
+
         # Get current revision before upgrade
         from_revision = await self.get_current_revision()
-        
+
         # Start timing
         start_time = time.time()
-        
+
         cmd = ["alembic", "upgrade", revision]
         if sql:
             cmd.append("--sql")
         if tag:
             cmd.extend(["--tag", tag])
-            
-        result = subprocess.run(
-            cmd,
-            cwd=str(self.project_root),
-            capture_output=True,
-            text=True
-        )
-        
+
+        result = subprocess.run(cmd, cwd=str(self.project_root), capture_output=True, text=True)
+
         # Calculate duration
         duration_ms = int((time.time() - start_time) * 1000)
-        
+
         # Log audit
         await self._log_migration_audit(
             operation="upgrade",
@@ -183,51 +168,43 @@ class MigrationManager:
             duration_ms=duration_ms,
             status="success" if result.returncode == 0 else "failed",
             error_message=result.stderr if result.returncode != 0 else None,
-            sql_executed=result.stdout if sql else None
+            sql_executed=result.stdout if sql else None,
         )
-        
+
         if result.returncode != 0:
             raise RuntimeError(f"Failed to upgrade database: {result.stderr}")
-            
+
         logger.info(f"Database upgraded successfully to {revision}")
 
     async def downgrade(
-        self,
-        revision: str = "-1",
-        sql: bool = False,
-        tag: Optional[str] = None
+        self, revision: str = "-1", sql: bool = False, tag: Optional[str] = None
     ) -> None:
         """Downgrade database to a revision.
-        
+
         Args:
             revision: Target revision (default: -1 for previous)
             sql: Whether to generate SQL script only
             tag: Optional tag for the revision
         """
         logger.info(f"Downgrading database to revision: {revision}")
-        
+
         # Get current revision before downgrade
         from_revision = await self.get_current_revision()
-        
+
         # Start timing
         start_time = time.time()
-        
+
         cmd = ["alembic", "downgrade", revision]
         if sql:
             cmd.append("--sql")
         if tag:
             cmd.extend(["--tag", tag])
-            
-        result = subprocess.run(
-            cmd,
-            cwd=str(self.project_root),
-            capture_output=True,
-            text=True
-        )
-        
+
+        result = subprocess.run(cmd, cwd=str(self.project_root), capture_output=True, text=True)
+
         # Calculate duration
         duration_ms = int((time.time() - start_time) * 1000)
-        
+
         # Log audit
         await self._log_migration_audit(
             operation="downgrade",
@@ -236,34 +213,35 @@ class MigrationManager:
             duration_ms=duration_ms,
             status="success" if result.returncode == 0 else "failed",
             error_message=result.stderr if result.returncode != 0 else None,
-            sql_executed=result.stdout if sql else None
+            sql_executed=result.stdout if sql else None,
         )
-        
+
         if result.returncode != 0:
             raise RuntimeError(f"Failed to downgrade database: {result.stderr}")
-            
+
         logger.info(f"Database downgraded successfully to {revision}")
 
     async def get_current_revision(self) -> Optional[str]:
         """Get current database revision.
-        
+
         Returns:
             Current revision ID or None if not initialized
         """
         engine = await self.get_engine()
-        
+
         async with engine.connect() as conn:
+
             def get_revision(sync_conn):
                 context = MigrationContext.configure(sync_conn)
                 return context.get_current_revision()
-            
+
             current = await conn.run_sync(get_revision)
-            
+
         return current
 
     async def get_head_revision(self) -> Optional[str]:
         """Get head revision from migration scripts.
-        
+
         Returns:
             Head revision ID or None
         """
@@ -273,13 +251,13 @@ class MigrationManager:
 
     async def get_pending_migrations(self) -> List[MigrationInfo]:
         """Get list of pending migrations.
-        
+
         Returns:
             List of pending migration information
         """
         current = await self.get_current_revision()
         script_dir = ScriptDirectory.from_config(self.config)
-        
+
         pending = []
         for revision in script_dir.walk_revisions():
             if current is None or revision.revision != current:
@@ -289,35 +267,35 @@ class MigrationManager:
                         description=revision.doc,
                         branch_labels=revision.branch_labels,
                         down_revision=revision.down_revision,
-                        create_date=datetime.fromtimestamp(
-                            revision.module.create_date
-                        ) if hasattr(revision.module, 'create_date') else None,
+                        create_date=datetime.fromtimestamp(revision.module.create_date)
+                        if hasattr(revision.module, "create_date")
+                        else None,
                         is_head=revision.is_head,
-                        is_current=revision.revision == current
+                        is_current=revision.revision == current,
                     )
                 )
-                
+
                 if revision.revision == current:
                     break
-                    
+
         return list(reversed(pending))
 
     async def get_migration_history(self) -> List[MigrationInfo]:
         """Get migration history.
-        
+
         Returns:
             List of applied migrations
         """
         current = await self.get_current_revision()
         script_dir = ScriptDirectory.from_config(self.config)
-        
+
         history = []
         found_current = False
-        
+
         for revision in script_dir.walk_revisions():
             if revision.revision == current:
                 found_current = True
-                
+
             if found_current:
                 history.append(
                     MigrationInfo(
@@ -325,19 +303,19 @@ class MigrationManager:
                         description=revision.doc,
                         branch_labels=revision.branch_labels,
                         down_revision=revision.down_revision,
-                        create_date=datetime.fromtimestamp(
-                            revision.module.create_date
-                        ) if hasattr(revision.module, 'create_date') else None,
+                        create_date=datetime.fromtimestamp(revision.module.create_date)
+                        if hasattr(revision.module, "create_date")
+                        else None,
                         is_head=revision.is_head,
-                        is_current=revision.revision == current
+                        is_current=revision.revision == current,
                     )
                 )
-                
+
         return history
 
     async def get_status(self) -> MigrationStatus:
         """Get comprehensive migration status.
-        
+
         Returns:
             Migration status information
         """
@@ -345,19 +323,19 @@ class MigrationManager:
         head = await self.get_head_revision()
         pending = await self.get_pending_migrations()
         history = await self.get_migration_history()
-        
+
         return MigrationStatus(
             current_revision=current,
             head_revision=head,
             pending_migrations=pending,
             applied_migrations=history,
             is_up_to_date=current == head,
-            needs_migration=current != head
+            needs_migration=current != head,
         )
 
     async def check_migration_needed(self) -> bool:
         """Check if migration is needed.
-        
+
         Returns:
             True if migrations are pending
         """
@@ -374,58 +352,53 @@ class MigrationManager:
 
     async def stamp(self, revision: str = "head") -> None:
         """Stamp database with a revision without running migrations.
-        
+
         Args:
             revision: Revision to stamp
         """
         logger.info(f"Stamping database with revision: {revision}")
-        
+
         cmd = ["alembic", "stamp", revision]
-        result = subprocess.run(
-            cmd,
-            cwd=str(self.project_root),
-            capture_output=True,
-            text=True
-        )
-        
+        result = subprocess.run(cmd, cwd=str(self.project_root), capture_output=True, text=True)
+
         if result.returncode != 0:
             raise RuntimeError(f"Failed to stamp database: {result.stderr}")
-            
+
         logger.info(f"Database stamped with revision {revision}")
 
     async def verify_migrations(self) -> Tuple[bool, List[str]]:
         """Verify that all migrations can be applied cleanly.
-        
+
         Returns:
             Tuple of (success, list of issues)
         """
         issues = []
-        
+
         try:
             # Check if alembic directory exists
             if not self.alembic_dir.exists():
                 issues.append("Alembic directory not found")
                 return False, issues
-                
+
             # Check if we can get current revision
             current = await self.get_current_revision()
             logger.info(f"Current revision: {current}")
-            
+
             # Check if we can get head revision
             head = await self.get_head_revision()
             logger.info(f"Head revision: {head}")
-            
+
             # Check pending migrations
             pending = await self.get_pending_migrations()
             if pending:
                 logger.info(f"Found {len(pending)} pending migrations")
-                
+
             return True, issues
-            
+
         except Exception as e:
             issues.append(f"Migration verification failed: {str(e)}")
             return False, issues
-    
+
     async def _log_migration_audit(
         self,
         operation: str,
@@ -436,10 +409,10 @@ class MigrationManager:
         error_message: Optional[str] = None,
         backup_id: Optional[str] = None,
         sql_executed: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         """Log migration operation to audit table.
-        
+
         Args:
             operation: Type of operation (upgrade, downgrade, stamp)
             from_revision: Starting revision
@@ -453,11 +426,12 @@ class MigrationManager:
         """
         try:
             engine = await self.get_engine()
-            
+
             # Get user info
             import getpass
+
             applied_by = getpass.getuser()
-            
+
             # Prepare audit record
             audit_sql = """
                 INSERT INTO migration_audit (
@@ -470,10 +444,10 @@ class MigrationManager:
                     :backup_id, :sql_executed, :audit_metadata
                 )
             """
-            
+
             # Use target revision as the main revision
             revision = to_revision or from_revision or "unknown"
-            
+
             async with engine.connect() as conn:
                 await conn.execute(
                     text(audit_sql),
@@ -488,14 +462,16 @@ class MigrationManager:
                         "status": status,
                         "error_message": error_message,
                         "backup_id": backup_id,
-                        "sql_executed": sql_executed[:10000] if sql_executed else None,  # Limit SQL size
-                        "audit_metadata": metadata
-                    }
+                        "sql_executed": sql_executed[:10000]
+                        if sql_executed
+                        else None,  # Limit SQL size
+                        "audit_metadata": metadata,
+                    },
                 )
                 await conn.commit()
-                
+
             logger.info(f"Migration audit logged: {operation} {revision} ({status})")
-            
+
         except Exception as e:
             # Don't fail migration if audit logging fails
             logger.warning(f"Failed to log migration audit: {e}")

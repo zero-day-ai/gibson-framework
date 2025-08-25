@@ -21,7 +21,7 @@ __all__ = [
     "PromptInjectionModule",
     "SystemPromptLeakageModule",
     "AttackTechnique",
-    "ExtractionMethod", 
+    "ExtractionMethod",
     "DetectionMethod",
     "ConfidenceLevel",
     "AggressivenessLevel",

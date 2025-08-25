@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class EnvMapping:
     """Maps environment variables to credential fields."""
-    
+
     env_var: str
     field: str
     required: bool = True
@@ -25,7 +25,7 @@ class EnvMapping:
 
 class EnvironmentInjector:
     """Handles credential injection from environment variables."""
-    
+
     # Standard environment variable mappings by provider
     PROVIDER_MAPPINGS = {
         Provider.OPENAI: [
@@ -59,7 +59,7 @@ class EnvironmentInjector:
             EnvMapping("CUSTOM_AUTH_HEADER", "auth_header", required=False),
         ],
     }
-    
+
     # Generic environment variable patterns
     GENERIC_PATTERNS = [
         "API_KEY",
@@ -68,24 +68,24 @@ class EnvironmentInjector:
         "SECRET_KEY",
         "BEARER_TOKEN",
     ]
-    
+
     def __init__(self, credential_manager: Optional[CredentialManager] = None):
         """Initialize environment injector.
-        
+
         Args:
             credential_manager: Optional credential manager instance
         """
         self.credential_manager = credential_manager or CredentialManager()
         self._env_cache: Dict[str, str] = {}
-        
+
     def scan_environment(self) -> Dict[str, List[str]]:
         """Scan environment for potential credentials.
-        
+
         Returns:
             Dictionary mapping providers to found environment variables
         """
         found = {}
-        
+
         # Check provider-specific variables
         for provider, mappings in self.PROVIDER_MAPPINGS.items():
             provider_vars = []
@@ -94,7 +94,7 @@ class EnvironmentInjector:
                     provider_vars.append(mapping.env_var)
             if provider_vars:
                 found[provider.value] = provider_vars
-                
+
         # Check for generic patterns
         generic_vars = []
         for var_name in os.environ:
@@ -104,9 +104,9 @@ class EnvironmentInjector:
                     break
         if generic_vars:
             found["generic"] = generic_vars
-            
+
         return found
-    
+
     async def inject_from_environment(
         self,
         provider: Optional[Provider] = None,
@@ -114,17 +114,17 @@ class EnvironmentInjector:
         auto_detect: bool = True,
     ) -> List[Credential]:
         """Inject credentials from environment variables.
-        
+
         Args:
             provider: Specific provider to inject for
             name: Optional name for the credential
             auto_detect: Whether to auto-detect provider from variables
-            
+
         Returns:
             List of injected credentials
         """
         injected = []
-        
+
         if provider:
             # Inject for specific provider
             cred = await self._inject_provider(provider, name)
@@ -136,27 +136,27 @@ class EnvironmentInjector:
                 cred = await self._inject_provider(prov, name)
                 if cred:
                     injected.append(cred)
-                    
+
         return injected
-    
+
     async def _inject_provider(
         self,
         provider: Provider,
         name: Optional[str] = None,
     ) -> Optional[Credential]:
         """Inject credentials for a specific provider.
-        
+
         Args:
             provider: Provider to inject for
             name: Optional credential name
-            
+
         Returns:
             Created credential or None if not available
         """
         mappings = self.PROVIDER_MAPPINGS.get(provider, [])
         if not mappings:
             return None
-            
+
         # Collect values from environment
         values = {}
         for mapping in mappings:
@@ -168,16 +168,16 @@ class EnvironmentInjector:
                 values[mapping.field] = value
             elif mapping.default:
                 values[mapping.field] = mapping.default
-                
+
         if not values:
             return None
-            
+
         # Create credential
         credential_name = name or f"{provider.value}_env"
-        
+
         # Determine auth format based on provider
         auth_format = self._get_default_format(provider)
-        
+
         # Build credential data
         cred_data = {
             "name": credential_name,
@@ -187,9 +187,9 @@ class EnvironmentInjector:
             "metadata": {
                 "source": "environment",
                 "injected": True,
-            }
+            },
         }
-        
+
         # Add provider-specific fields
         if provider == Provider.AWS_BEDROCK:
             cred_data["api_key"] = values.get("access_key", "")
@@ -208,29 +208,27 @@ class EnvironmentInjector:
                         cred_data["metadata"]["service_account"] = json.load(f)
                 except Exception as e:
                     logger.warning(f"Failed to load service account: {e}")
-                    
+
         # Add any additional metadata
         for key, value in values.items():
             if key not in ["api_key", "access_key", "secret_key"]:
                 cred_data["metadata"][key] = value
-                
+
         # Store credential
         try:
-            credential = await self.credential_manager.store_credential(
-                **cred_data
-            )
+            credential = await self.credential_manager.store_credential(**cred_data)
             logger.info(f"Injected {provider.value} credentials from environment")
             return credential
         except Exception as e:
             logger.error(f"Failed to inject {provider.value} credentials: {e}")
             return None
-    
+
     def _get_default_format(self, provider: Provider) -> ApiKeyFormat:
         """Get default authentication format for provider.
-        
+
         Args:
             provider: Provider type
-            
+
         Returns:
             Default API key format
         """
@@ -243,38 +241,38 @@ class EnvironmentInjector:
             Provider.CUSTOM: ApiKeyFormat.BEARER_TOKEN,
         }
         return format_map.get(provider, ApiKeyFormat.BEARER_TOKEN)
-    
+
     def export_template(
         self,
         provider: Optional[Provider] = None,
         format: str = "env",
     ) -> str:
         """Export environment variable template.
-        
+
         Args:
             provider: Specific provider or all if None
             format: Output format (env, docker, k8s)
-            
+
         Returns:
             Template string
         """
         templates = []
-        
+
         providers = [provider] if provider else list(Provider)
-        
+
         for prov in providers:
             mappings = self.PROVIDER_MAPPINGS.get(prov, [])
             if not mappings:
                 continue
-                
+
             if format == "env":
                 # Shell environment format
                 templates.append(f"# {prov.value.upper()} Credentials")
                 for mapping in mappings:
                     req = "" if mapping.required else " (optional)"
-                    templates.append(f"export {mapping.env_var}=\"your_{mapping.field}_here\"{req}")
+                    templates.append(f'export {mapping.env_var}="your_{mapping.field}_here"{req}')
                 templates.append("")
-                
+
             elif format == "docker":
                 # Docker environment format
                 templates.append(f"# {prov.value.upper()} Credentials")
@@ -282,7 +280,7 @@ class EnvironmentInjector:
                     req = "" if mapping.required else " # optional"
                     templates.append(f"      - {mapping.env_var}=${{mapping.env_var}}{req}")
                 templates.append("")
-                
+
             elif format == "k8s":
                 # Kubernetes secret format
                 templates.append(f"  # {prov.value.upper()} Credentials")
@@ -290,26 +288,26 @@ class EnvironmentInjector:
                     req = "" if mapping.required else " # optional"
                     templates.append(f"  {mapping.env_var}: <base64-encoded-value>{req}")
                 templates.append("")
-                
+
         return "\n".join(templates)
-    
+
     async def inject_from_file(
         self,
         env_file: Path,
         override: bool = False,
     ) -> List[Credential]:
         """Inject credentials from .env file.
-        
+
         Args:
             env_file: Path to .env file
             override: Whether to override existing environment
-            
+
         Returns:
             List of injected credentials
         """
         if not env_file.exists():
             raise FileNotFoundError(f"Environment file not found: {env_file}")
-            
+
         # Parse .env file
         env_vars = {}
         with open(env_file, "r") as f:
@@ -321,7 +319,7 @@ class EnvironmentInjector:
                         key = key.strip()
                         value = value.strip().strip('"').strip("'")
                         env_vars[key] = value
-                        
+
         # Temporarily set environment variables
         original_env = {}
         for key, value in env_vars.items():
@@ -329,7 +327,7 @@ class EnvironmentInjector:
                 continue
             original_env[key] = os.environ.get(key)
             os.environ[key] = value
-            
+
         try:
             # Inject from environment
             credentials = await self.inject_from_environment(auto_detect=True)
@@ -341,18 +339,18 @@ class EnvironmentInjector:
                     os.environ.pop(key, None)
                 else:
                     os.environ[key] = original_value
-                    
+
     def validate_environment(self, provider: Provider) -> Dict[str, Any]:
         """Validate environment has required variables for provider.
-        
+
         Args:
             provider: Provider to validate for
-            
+
         Returns:
             Validation results with missing/present variables
         """
         mappings = self.PROVIDER_MAPPINGS.get(provider, [])
-        
+
         result = {
             "provider": provider.value,
             "valid": True,
@@ -360,7 +358,7 @@ class EnvironmentInjector:
             "missing": [],
             "optional_missing": [],
         }
-        
+
         for mapping in mappings:
             if mapping.env_var in os.environ:
                 result["present"].append(mapping.env_var)
@@ -369,20 +367,20 @@ class EnvironmentInjector:
                 result["valid"] = False
             else:
                 result["optional_missing"].append(mapping.env_var)
-                
+
         return result
-    
+
     async def auto_inject_all(self) -> Dict[str, List[Credential]]:
         """Automatically inject all available credentials from environment.
-        
+
         Returns:
             Dictionary mapping provider names to injected credentials
         """
         results = {}
-        
+
         for provider in Provider:
             credentials = await self.inject_from_environment(provider=provider)
             if credentials:
                 results[provider.value] = credentials
-                
+
         return results

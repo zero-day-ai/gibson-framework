@@ -13,12 +13,12 @@ from gibson.core.auth.audit import audit_log, AuditEventType
 
 logger = logging.getLogger(__name__)
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class AuthErrorType(str, Enum):
     """Types of authentication errors."""
-    
+
     INVALID_CREDENTIALS = "invalid_credentials"
     EXPIRED_TOKEN = "expired_token"
     RATE_LIMITED = "rate_limited"
@@ -35,7 +35,7 @@ class AuthErrorType(str, Enum):
 @dataclass
 class AuthError:
     """Authentication error details."""
-    
+
     error_type: AuthErrorType
     message: str
     credential_name: Optional[str] = None
@@ -44,7 +44,7 @@ class AuthError:
     retry_after: Optional[int] = None
     recoverable: bool = True
     details: Dict[str, Any] = None
-    
+
     def __post_init__(self):
         if self.timestamp is None:
             self.timestamp = datetime.utcnow()
@@ -54,7 +54,7 @@ class AuthError:
 
 class RetryPolicy:
     """Retry policy for authentication operations."""
-    
+
     def __init__(
         self,
         max_retries: int = 3,
@@ -64,7 +64,7 @@ class RetryPolicy:
         jitter: bool = True,
     ):
         """Initialize retry policy.
-        
+
         Args:
             max_retries: Maximum number of retry attempts
             initial_delay: Initial delay between retries (seconds)
@@ -77,24 +77,22 @@ class RetryPolicy:
         self.max_delay = max_delay
         self.exponential_base = exponential_base
         self.jitter = jitter
-    
+
     def get_delay(self, attempt: int) -> float:
         """Calculate delay for retry attempt."""
-        delay = min(
-            self.initial_delay * (self.exponential_base ** attempt),
-            self.max_delay
-        )
-        
+        delay = min(self.initial_delay * (self.exponential_base**attempt), self.max_delay)
+
         if self.jitter:
             import random
-            delay *= (0.5 + random.random())
-        
+
+            delay *= 0.5 + random.random()
+
         return delay
 
 
 class CircuitBreaker:
     """Circuit breaker for authentication services."""
-    
+
     def __init__(
         self,
         failure_threshold: int = 5,
@@ -102,7 +100,7 @@ class CircuitBreaker:
         half_open_max_calls: int = 3,
     ):
         """Initialize circuit breaker.
-        
+
         Args:
             failure_threshold: Failures before opening circuit
             recovery_timeout: Seconds before attempting recovery
@@ -111,12 +109,12 @@ class CircuitBreaker:
         self.failure_threshold = failure_threshold
         self.recovery_timeout = recovery_timeout
         self.half_open_max_calls = half_open_max_calls
-        
+
         self.failure_count = 0
         self.last_failure_time = None
         self.state = "closed"  # closed, open, half_open
         self.half_open_calls = 0
-    
+
     def call_succeeded(self):
         """Record successful call."""
         if self.state == "half_open":
@@ -129,12 +127,12 @@ class CircuitBreaker:
                 logger.info("Circuit breaker closed after recovery")
         elif self.state == "closed":
             self.failure_count = max(0, self.failure_count - 1)
-    
+
     def call_failed(self):
         """Record failed call."""
         self.failure_count += 1
         self.last_failure_time = datetime.utcnow()
-        
+
         if self.state == "half_open":
             # Failure in half-open, back to open
             self.state = "open"
@@ -143,12 +141,12 @@ class CircuitBreaker:
         elif self.failure_count >= self.failure_threshold:
             self.state = "open"
             logger.error(f"Circuit breaker opened after {self.failure_count} failures")
-    
+
     def is_available(self) -> bool:
         """Check if service is available."""
         if self.state == "closed":
             return True
-        
+
         if self.state == "open":
             # Check if recovery timeout has passed
             if self.last_failure_time:
@@ -160,21 +158,21 @@ class CircuitBreaker:
                     logger.info("Circuit breaker entering half-open state")
                     return True
             return False
-        
+
         # Half-open state
         return self.half_open_calls < self.half_open_max_calls
 
 
 class AuthErrorHandler:
     """Handles authentication errors with recovery strategies."""
-    
+
     def __init__(
         self,
         retry_policy: Optional[RetryPolicy] = None,
         circuit_breaker: Optional[CircuitBreaker] = None,
     ):
         """Initialize error handler.
-        
+
         Args:
             retry_policy: Retry policy for operations
             circuit_breaker: Circuit breaker for service protection
@@ -183,38 +181,40 @@ class AuthErrorHandler:
         self.circuit_breaker = circuit_breaker or CircuitBreaker()
         self.error_history: List[AuthError] = []
         self.recovery_strategies: Dict[AuthErrorType, Callable] = {}
-        
+
         # Register default recovery strategies
         self._register_default_strategies()
-    
+
     def _register_default_strategies(self):
         """Register default recovery strategies for error types."""
         self.recovery_strategies[AuthErrorType.EXPIRED_TOKEN] = self._recover_expired_token
         self.recovery_strategies[AuthErrorType.RATE_LIMITED] = self._recover_rate_limited
         self.recovery_strategies[AuthErrorType.NETWORK_ERROR] = self._recover_network_error
-        self.recovery_strategies[AuthErrorType.PROVIDER_UNAVAILABLE] = self._recover_provider_unavailable
-    
+        self.recovery_strategies[
+            AuthErrorType.PROVIDER_UNAVAILABLE
+        ] = self._recover_provider_unavailable
+
     async def handle_error(
         self,
         error: Exception,
         context: Dict[str, Any],
     ) -> Optional[AuthError]:
         """Handle authentication error.
-        
+
         Args:
             error: The exception that occurred
             context: Context information about the operation
-            
+
         Returns:
             AuthError object with details
         """
         # Classify error
         auth_error = self._classify_error(error, context)
-        
+
         # Log error
         self.error_history.append(auth_error)
         logger.error(f"Authentication error: {auth_error.message}", exc_info=error)
-        
+
         # Audit log
         await audit_log(
             AuditEventType.AUTH_FAILURE,
@@ -225,14 +225,14 @@ class AuthErrorHandler:
             metadata={
                 "error_type": auth_error.error_type.value,
                 "recoverable": auth_error.recoverable,
-            }
+            },
         )
-        
+
         # Update circuit breaker
         self.circuit_breaker.call_failed()
-        
+
         return auth_error
-    
+
     def _classify_error(
         self,
         error: Exception,
@@ -240,7 +240,7 @@ class AuthErrorHandler:
     ) -> AuthError:
         """Classify exception into AuthError."""
         error_str = str(error).lower()
-        
+
         # Check for specific error patterns
         if "invalid" in error_str or "unauthorized" in error_str:
             error_type = AuthErrorType.INVALID_CREDENTIALS
@@ -260,13 +260,14 @@ class AuthErrorHandler:
             error_type = AuthErrorType.STORAGE_ERROR
         else:
             error_type = AuthErrorType.UNKNOWN_ERROR
-        
+
         return AuthError(
             error_type=error_type,
             message=str(error),
             credential_name=context.get("credential_name"),
             provider=context.get("provider"),
-            recoverable=error_type not in [
+            recoverable=error_type
+            not in [
                 AuthErrorType.INVALID_CREDENTIALS,
                 AuthErrorType.PERMISSION_DENIED,
             ],
@@ -274,9 +275,9 @@ class AuthErrorHandler:
                 "exception_type": type(error).__name__,
                 "traceback": traceback.format_exc(),
                 **context,
-            }
+            },
         )
-    
+
     async def with_retry(
         self,
         operation: Callable,
@@ -285,33 +286,33 @@ class AuthErrorHandler:
         **kwargs,
     ) -> Any:
         """Execute operation with retry logic.
-        
+
         Args:
             operation: Async operation to execute
             context: Context for error handling
             *args: Arguments for operation
             **kwargs: Keyword arguments for operation
-            
+
         Returns:
             Result of operation
-            
+
         Raises:
             Last exception if all retries fail
         """
         last_error = None
-        
+
         for attempt in range(self.retry_policy.max_retries + 1):
             try:
                 # Check circuit breaker
                 if not self.circuit_breaker.is_available():
                     raise Exception("Service unavailable (circuit open)")
-                
+
                 # Execute operation
                 result = await operation(*args, **kwargs)
-                
+
                 # Success - update circuit breaker
                 self.circuit_breaker.call_succeeded()
-                
+
                 # Log recovery if this was a retry
                 if attempt > 0:
                     logger.info(f"Operation succeeded after {attempt} retries")
@@ -321,40 +322,40 @@ class AuthErrorHandler:
                         message=f"Recovered after {attempt} retries",
                         metadata=context,
                     )
-                
+
                 return result
-                
+
             except Exception as e:
                 last_error = e
                 auth_error = await self.handle_error(e, context)
-                
+
                 # Check if recoverable
                 if not auth_error.recoverable:
                     logger.error(f"Non-recoverable error: {auth_error.message}")
                     raise
-                
+
                 # Check if we have retries left
                 if attempt >= self.retry_policy.max_retries:
                     logger.error(f"Max retries ({self.retry_policy.max_retries}) exceeded")
                     raise
-                
+
                 # Calculate delay
                 delay = self.retry_policy.get_delay(attempt)
-                
+
                 # Check for rate limit with specific delay
                 if auth_error.retry_after:
                     delay = max(delay, auth_error.retry_after)
-                
+
                 logger.warning(f"Retrying after {delay:.1f}s (attempt {attempt + 1})")
                 await asyncio.sleep(delay)
-                
+
                 # Try recovery strategy if available
                 if auth_error.error_type in self.recovery_strategies:
                     recovery_fn = self.recovery_strategies[auth_error.error_type]
                     await recovery_fn(auth_error, context)
-        
+
         raise last_error
-    
+
     async def _recover_expired_token(
         self,
         error: AuthError,
@@ -365,7 +366,7 @@ class AuthErrorHandler:
         # In a real implementation, this would refresh the token
         # For now, just log the attempt
         context["token_refreshed"] = True
-    
+
     async def _recover_rate_limited(
         self,
         error: AuthError,
@@ -375,7 +376,7 @@ class AuthErrorHandler:
         logger.info(f"Rate limited, waiting {error.retry_after}s")
         if error.retry_after:
             await asyncio.sleep(error.retry_after)
-    
+
     async def _recover_network_error(
         self,
         error: AuthError,
@@ -385,7 +386,7 @@ class AuthErrorHandler:
         logger.info("Network error detected, checking connectivity")
         # Could implement connectivity check here
         context["network_retry"] = True
-    
+
     async def _recover_provider_unavailable(
         self,
         error: AuthError,
@@ -395,7 +396,7 @@ class AuthErrorHandler:
         logger.info("Provider unavailable, considering fallback")
         # Could implement fallback provider logic
         context["fallback_attempted"] = True
-    
+
     def get_error_statistics(self) -> Dict[str, Any]:
         """Get error statistics."""
         if not self.error_history:
@@ -405,18 +406,18 @@ class AuthErrorHandler:
                 "recoverable_errors": 0,
                 "circuit_state": self.circuit_breaker.state,
             }
-        
+
         error_types = {}
         recoverable_count = 0
-        
+
         for error in self.error_history:
             error_type = error.error_type.value
             error_types[error_type] = error_types.get(error_type, 0) + 1
             if error.recoverable:
                 recoverable_count += 1
-        
+
         recent_errors = self.error_history[-10:]
-        
+
         return {
             "total_errors": len(self.error_history),
             "error_types": error_types,
@@ -433,23 +434,20 @@ class AuthErrorHandler:
             "circuit_state": self.circuit_breaker.state,
             "circuit_failures": self.circuit_breaker.failure_count,
         }
-    
+
     def clear_error_history(self, older_than: Optional[timedelta] = None) -> int:
         """Clear error history.
-        
+
         Args:
             older_than: Clear only errors older than this duration
-            
+
         Returns:
             Number of errors cleared
         """
         if older_than:
             cutoff = datetime.utcnow() - older_than
             original_count = len(self.error_history)
-            self.error_history = [
-                e for e in self.error_history
-                if e.timestamp > cutoff
-            ]
+            self.error_history = [e for e in self.error_history if e.timestamp > cutoff]
             return original_count - len(self.error_history)
         else:
             count = len(self.error_history)

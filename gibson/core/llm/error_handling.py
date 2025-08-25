@@ -132,9 +132,7 @@ class ProviderErrorMapping:
 
         # Try HTTP status code mapping
         if hasattr(error, "status_code"):
-            return cls.HTTP_STATUS_MAP.get(
-                error.status_code, LLMErrorType.PROVIDER_ERROR
-            )
+            return cls.HTTP_STATUS_MAP.get(error.status_code, LLMErrorType.PROVIDER_ERROR)
 
         # Fallback to keyword matching
         if any(word in error_str for word in ["timeout", "timed out"]):
@@ -258,7 +256,7 @@ class RetryStrategy:
     def get_delay(self, attempt: int, error_type: LLMErrorType | None = None) -> float:
         """Calculate delay for retry attempt."""
         # Use base exponential backoff
-        delay = self.config.base_delay * (self.config.exponential_base ** attempt)
+        delay = self.config.base_delay * (self.config.exponential_base**attempt)
 
         # Apply maximum delay limit
         delay = min(delay, self.config.max_delay)
@@ -380,15 +378,17 @@ class CircuitBreaker:
         self.stats.success_count += 1
         self.stats.total_successes += 1
 
-        if (self.stats.state == CircuitBreakerState.HALF_OPEN and
-                self.stats.success_count >= self.config.success_threshold):
-                # Close circuit
-                self.stats.state = CircuitBreakerState.CLOSED
-                self.stats.state_changed_at = datetime.utcnow()
-                self.stats.state_changes += 1
-                self.stats.failure_count = 0
-                self.stats.success_count = 0
-                logger.info(f"Circuit breaker closed for provider {self.provider}")
+        if (
+            self.stats.state == CircuitBreakerState.HALF_OPEN
+            and self.stats.success_count >= self.config.success_threshold
+        ):
+            # Close circuit
+            self.stats.state = CircuitBreakerState.CLOSED
+            self.stats.state_changed_at = datetime.utcnow()
+            self.stats.state_changes += 1
+            self.stats.failure_count = 0
+            self.stats.success_count = 0
+            logger.info(f"Circuit breaker closed for provider {self.provider}")
 
     async def _record_failure(self) -> None:
         """Record failed execution."""
@@ -444,8 +444,7 @@ class ErrorRecovery:
         # Reduce max_tokens if set
         if reduced_request.max_tokens:
             reduced_request.max_tokens = min(
-                reduced_request.max_tokens,
-                int(reduced_request.max_tokens * 0.7)
+                reduced_request.max_tokens, int(reduced_request.max_tokens * 0.7)
             )
 
         # Reduce temperature for more focused responses
@@ -615,33 +614,21 @@ class UserErrorFormatter:
         LLMErrorType.CONTENT_FILTER: (
             "Content filtered. Please modify your request to comply with content policies."
         ),
-        LLMErrorType.PROVIDER_ERROR: (
-            "Provider error occurred. Please try again in a moment."
-        ),
-        LLMErrorType.PROVIDER_TIMEOUT: (
-            "Request timed out. Please try again."
-        ),
+        LLMErrorType.PROVIDER_ERROR: ("Provider error occurred. Please try again in a moment."),
+        LLMErrorType.PROVIDER_TIMEOUT: ("Request timed out. Please try again."),
         LLMErrorType.PROVIDER_UNAVAILABLE: (
             "Service temporarily unavailable. Please try again later."
         ),
-        LLMErrorType.NETWORK_ERROR: (
-            "Network error. Please check your connection and try again."
-        ),
-        LLMErrorType.TIMEOUT_ERROR: (
-            "Request timed out. Please try again."
-        ),
+        LLMErrorType.NETWORK_ERROR: ("Network error. Please check your connection and try again."),
+        LLMErrorType.TIMEOUT_ERROR: ("Request timed out. Please try again."),
         LLMErrorType.CONNECTION_ERROR: (
             "Connection error. Please check your network and try again."
         ),
         LLMErrorType.INTERNAL_SERVER_ERROR: (
             "Internal server error. Please try again in a moment."
         ),
-        LLMErrorType.SERVICE_UNAVAILABLE: (
-            "Service unavailable. Please try again later."
-        ),
-        LLMErrorType.BAD_GATEWAY: (
-            "Gateway error. Please try again in a moment."
-        ),
+        LLMErrorType.SERVICE_UNAVAILABLE: ("Service unavailable. Please try again later."),
+        LLMErrorType.BAD_GATEWAY: ("Gateway error. Please try again in a moment."),
     }
 
     ACTIONABLE_GUIDANCE: dict[LLMErrorType, list[str]] = {
@@ -675,9 +662,7 @@ class UserErrorFormatter:
     @classmethod
     def format_user_error(cls, error: LLMError) -> str:
         """Format error for user display."""
-        base_message = cls.ERROR_MESSAGES.get(
-            error.type, f"An error occurred: {error.message}"
-        )
+        base_message = cls.ERROR_MESSAGES.get(error.type, f"An error occurred: {error.message}")
 
         # Add provider-specific context
         if error.provider:
@@ -765,9 +750,7 @@ class LLMErrorHandler:
         classification = self.error_classifier.classify_error(error_type)
 
         # Log the error
-        self.error_logger.log_error(
-            llm_error, context, classification["severity"]
-        )
+        self.error_logger.log_error(llm_error, context, classification["severity"])
 
         # Update statistics
         self.stats[f"error_{error_type}"] += 1
@@ -791,7 +774,9 @@ class LLMErrorHandler:
             try:
                 if attempt > 0:
                     # Calculate and apply delay
-                    delay = self.retry_strategy.get_delay(attempt - 1, last_error.type if last_error else None)
+                    delay = self.retry_strategy.get_delay(
+                        attempt - 1, last_error.type if last_error else None
+                    )
                     await asyncio.sleep(delay)
 
                 return await func()
@@ -869,9 +854,7 @@ class LLMErrorHandler:
     async def circuit_breaker_check(self, provider: str) -> bool:
         """Check if provider circuit breaker allows execution."""
         if provider not in self.circuit_breakers:
-            self.circuit_breakers[provider] = CircuitBreaker(
-                provider, self.circuit_breaker_config
-            )
+            self.circuit_breakers[provider] = CircuitBreaker(provider, self.circuit_breaker_config)
 
         circuit_breaker = self.circuit_breakers[provider]
         return await circuit_breaker._can_execute()
@@ -1004,4 +987,3 @@ def create_error_handler(
         enable_fallback=enable_fallback,
         fallback_providers=fallback_providers or [],
     )
-
