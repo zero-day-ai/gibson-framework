@@ -1,0 +1,50 @@
+# Gibson CLI Default Configuration
+# This file contains the default configuration for Gibson CLI
+
+# Database configuration
+database:
+  url: "sqlite:///gibson.db"
+  echo: false
+  pool_size: 10
+  max_overflow: 20
+
+# Module system configuration
+modules:
+  registry_url: "https://github.com/gibson-security/gibson-modules"
+  cache_dir: "~/.gibson/modules"
+  auto_update: true
+  trusted_sources:
+    - "gibson-security"
+    - "owasp"
+
+# Security and safety configuration
+security:
+  rate_limit_requests: 100
+  rate_limit_window: 60
+  max_concurrent_scans: 5
+  require_confirmation: true
+  dry_run_default: false
+
+# AI/ML configuration
+ai:
+  provider: "openai"
+  model: "gpt-4"
+  api_key: null  # Set via GIBSON_AI__API_KEY environment variable
+  temperature: 0.1
+  max_tokens: 2048
+  timeout: 30
+
+# Output formatting configuration
+output:
+  default_format: "human"
+  color: true
+  progress_bars: true
+  timestamps: true
+
+# Telemetry configuration
+telemetry:
+  enabled: false
+  endpoint: null
+
+# Custom settings (user-defined)
+custom: {}

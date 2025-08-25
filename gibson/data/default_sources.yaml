@@ -1,0 +1,240 @@
+# Default Payload Sources Configuration for Gibson Modules
+# This file defines the default payload sources for each Gibson module
+
+metadata:
+  version: "1.0.0"
+  description: "Default payload sources for Gibson security testing modules"
+  updated: "2024-01-01"
+
+modules:
+  # System Prompt Leakage Module
+  system-prompt-leakage:
+    description: "Payloads for testing system prompt extraction vulnerabilities"
+    sources:
+      default:
+        description: "Basic prompt leakage payloads included with Gibson"
+        type: "embedded"
+        urls: []
+        size: "<1MB"
+        count: 50
+      
+      advanced:
+        description: "Advanced prompt extraction techniques from research"
+        type: "github-raw"
+        urls:
+          - "https://raw.githubusercontent.com/gibson-sec/prompt-leakage-db/main/advanced.yaml"
+          - "https://raw.githubusercontent.com/gibson-sec/prompt-leakage-db/main/unicode.yaml"
+          - "https://raw.githubusercontent.com/gibson-sec/prompt-leakage-db/main/encoding.yaml"
+        size: "~5MB"
+        count: 200
+      
+      community:
+        description: "Community-contributed prompt leakage payloads"
+        type: "github-release"
+        urls:
+          - "https://github.com/gibson-sec/community-payloads/releases/latest/download/prompt-leakage.tar.gz"
+        size: "~10MB"
+        count: 500
+        checksum: null  # Will be updated with each release
+
+  # Prompt Injection Module
+  prompt-injection:
+    description: "Payloads for testing prompt injection vulnerabilities"
+    sources:
+      default:
+        description: "Standard prompt injection payloads"
+        type: "embedded"
+        urls: []
+        size: "<1MB"
+        count: 100
+      
+      owasp-top10:
+        description: "OWASP LLM Top 10 prompt injection examples"
+        type: "github-raw"
+        urls:
+          - "https://raw.githubusercontent.com/OWASP/www-project-top-10-for-large-language-model-applications/main/llm-top-10-prompt-injection-2025/payloads.yaml"
+        size: "~2MB"
+        count: 150
+      
+      research-papers:
+        description: "Payloads from academic research papers"
+        type: "github-raw"
+        urls:
+          - "https://raw.githubusercontent.com/gibson-sec/research-payloads/main/gpt4-redteam.yaml"
+          - "https://raw.githubusercontent.com/gibson-sec/research-payloads/main/llm-attacks-2024.yaml"
+          - "https://raw.githubusercontent.com/gibson-sec/research-payloads/main/indirect-injection.yaml"
+        size: "~8MB"
+        count: 400
+
+  # Insecure Output Handling Module
+  insecure-output-handling:
+    description: "Payloads for testing output validation and sanitization"
+    sources:
+      default:
+        description: "Basic output handling test payloads"
+        type: "embedded"
+        urls: []
+        size: "<1MB"
+        count: 75
+      
+      xss-vectors:
+        description: "XSS and injection vectors for output handling"
+        type: "github-raw"
+        urls:
+          - "https://raw.githubusercontent.com/gibson-sec/xss-llm/main/vectors.yaml"
+          - "https://raw.githubusercontent.com/gibson-sec/xss-llm/main/polyglot.yaml"
+        size: "~3MB"
+        count: 250
+
+  # Sensitive Information Disclosure Module
+  sensitive-info-disclosure:
+    description: "Payloads for testing information leakage"
+    sources:
+      default:
+        description: "Standard information disclosure payloads"
+        type: "embedded"
+        urls: []
+        size: "<1MB"
+        count: 60
+      
+      pii-extraction:
+        description: "PII and sensitive data extraction techniques"
+        type: "github-raw"
+        urls:
+          - "https://raw.githubusercontent.com/gibson-sec/pii-extraction/main/social-engineering.yaml"
+          - "https://raw.githubusercontent.com/gibson-sec/pii-extraction/main/memory-extraction.yaml"
+        size: "~4MB"
+        count: 180
+
+  # Model Denial of Service Module
+  model-dos:
+    description: "Payloads for testing resource exhaustion attacks"
+    sources:
+      default:
+        description: "Basic DoS payloads"
+        type: "embedded"
+        urls: []
+        size: "<1MB"
+        count: 40
+      
+      resource-exhaustion:
+        description: "Advanced resource exhaustion techniques"
+        type: "github-raw"
+        urls:
+          - "https://raw.githubusercontent.com/gibson-sec/dos-payloads/main/infinite-loops.yaml"
+          - "https://raw.githubusercontent.com/gibson-sec/dos-payloads/main/context-flooding.yaml"
+          - "https://raw.githubusercontent.com/gibson-sec/dos-payloads/main/recursive-prompts.yaml"
+        size: "~2MB"
+        count: 120
+
+  # Model Theft Module
+  model-theft:
+    description: "Payloads for testing model extraction attacks"
+    sources:
+      default:
+        description: "Model extraction and theft payloads"
+        type: "embedded"
+        urls: []
+        size: "<1MB"
+        count: 30
+      
+      extraction-techniques:
+        description: "Advanced model extraction methods"
+        type: "github-raw"
+        urls:
+          - "https://raw.githubusercontent.com/gibson-sec/model-extraction/main/distillation.yaml"
+          - "https://raw.githubusercontent.com/gibson-sec/model-extraction/main/architecture-probing.yaml"
+        size: "~5MB"
+        count: 150
+
+  # Training Data Poisoning Module
+  training-data-poisoning:
+    description: "Payloads for testing data poisoning vulnerabilities"
+    sources:
+      default:
+        description: "Data poisoning test payloads"
+        type: "embedded"
+        urls: []
+        size: "<1MB"
+        count: 25
+      
+      backdoor-triggers:
+        description: "Backdoor and trigger injection payloads"
+        type: "github-raw"
+        urls:
+          - "https://raw.githubusercontent.com/gibson-sec/backdoor-llm/main/triggers.yaml"
+          - "https://raw.githubusercontent.com/gibson-sec/backdoor-llm/main/poisoning-examples.yaml"
+        size: "~3MB"
+        count: 100
+
+  # Excessive Agency Module  
+  excessive-agency:
+    description: "Payloads for testing autonomous agent boundaries"
+    sources:
+      default:
+        description: "Agent boundary testing payloads"
+        type: "embedded"
+        urls: []
+        size: "<1MB"
+        count: 45
+      
+      tool-abuse:
+        description: "Tool and function calling abuse payloads"
+        type: "github-raw"
+        urls:
+          - "https://raw.githubusercontent.com/gibson-sec/agent-security/main/tool-confusion.yaml"
+          - "https://raw.githubusercontent.com/gibson-sec/agent-security/main/permission-escalation.yaml"
+        size: "~4MB"
+        count: 200
+
+  # Overreliance Module
+  overreliance:
+    description: "Payloads for testing hallucination and accuracy"
+    sources:
+      default:
+        description: "Hallucination and accuracy test payloads"
+        type: "embedded"
+        urls: []
+        size: "<1MB"
+        count: 80
+      
+      fact-checking:
+        description: "Fact verification and hallucination detection"
+        type: "github-raw"
+        urls:
+          - "https://raw.githubusercontent.com/gibson-sec/hallucination-db/main/factual-errors.yaml"
+          - "https://raw.githubusercontent.com/gibson-sec/hallucination-db/main/confidence-manipulation.yaml"
+        size: "~6MB"
+        count: 300
+
+  # Insecure Plugin Design Module
+  insecure-plugin-design:
+    description: "Payloads for testing plugin/extension security"
+    sources:
+      default:
+        description: "Plugin security test payloads"
+        type: "embedded"
+        urls: []
+        size: "<1MB"
+        count: 35
+      
+      plugin-exploits:
+        description: "Plugin and extension exploitation techniques"
+        type: "github-raw"
+        urls:
+          - "https://raw.githubusercontent.com/gibson-sec/plugin-security/main/sandbox-escape.yaml"
+          - "https://raw.githubusercontent.com/gibson-sec/plugin-security/main/api-abuse.yaml"
+        size: "~3MB"
+        count: 150
+
+# Custom module template (for user-defined modules)
+custom:
+  template:
+    description: "Template for custom module payload sources"
+    sources:
+      example:
+        description: "Example custom payload source"
+        type: "local"
+        urls: []
+        size: "Variable"
+        count: 0

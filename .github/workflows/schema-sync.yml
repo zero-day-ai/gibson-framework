@@ -1,0 +1,221 @@
+name: Schema Synchronization
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'gibson/models/payload.py'
+      - 'gibson/core/schema_sync/**'
+      - '.github/workflows/schema-sync.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'gibson/models/payload.py'
+      - 'gibson/core/schema_sync/**'
+
+jobs:
+  check-schemas:
+    name: Check Schema Synchronization
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install pytest
+      
+      - name: Check schema synchronization
+        run: |
+          python scripts/sync_schemas.py --dry-run --ci
+        continue-on-error: false
+      
+      - name: Validate schema consistency
+        run: |
+          python -m gibson.cli.main schema check --ci
+        continue-on-error: false
+      
+      - name: Run schema sync tests
+        run: |
+          pytest tests/unit/core/schema_sync -v
+        continue-on-error: false
+      
+      - name: Generate schema diff report
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "## Schema Changes Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          python -m gibson.cli.main schema check --verbose >> schema_report.txt 2>&1 || true
+          if [ -f schema_report.txt ]; then
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat schema_report.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: Comment PR with schema changes
+        if: github.event_name == 'pull_request' && failure()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            let report = '';
+            
+            try {
+              report = fs.readFileSync('schema_report.txt', 'utf8');
+            } catch (e) {
+              report = 'Schema check failed but no report was generated.';
+            }
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## ⚠️ Schema Synchronization Required
+              
+              The PayloadModel has changed and requires schema synchronization.
+              
+              ### Schema Check Output:
+              \`\`\`
+              ${report}
+              \`\`\`
+              
+              ### Next Steps:
+              1. Run \`make sync-schemas\` locally to generate migrations
+              2. Review the generated migration scripts
+              3. Commit the schema changes and migration files
+              4. Push the changes to update this PR
+              
+              For breaking changes, use \`make schema-sync-force\` with caution.`
+            })
+
+  validate-migrations:
+    name: Validate Migration Scripts
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Get full history for diff
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install alembic
+      
+      - name: Check for migration files
+        run: |
+          # Check if migration files were added
+          git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E "migrations/.*\.py$" || echo "No migration files found"
+      
+      - name: Validate migration syntax
+        run: |
+          # Find new migration files and validate Python syntax
+          for file in $(git diff --name-only origin/${{ github.base_ref }}...HEAD | grep -E "migrations/.*\.py$"); do
+            if [ -f "$file" ]; then
+              echo "Validating $file"
+              python -m py_compile "$file"
+            fi
+          done
+      
+      - name: Test migration reversibility
+        run: |
+          echo "Testing migration reversibility..."
+          # This would test that migrations can be applied and rolled back
+          # Placeholder for actual migration testing
+
+  schema-compatibility:
+    name: Check Schema Compatibility
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+      
+      - name: Generate schema documentation
+        run: |
+          python -m gibson.cli.main schema generate --output schemas/
+          
+      - name: Upload schema artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: schemas-${{ github.sha }}
+          path: schemas/
+          retention-days: 30
+      
+      - name: Check breaking changes
+        run: |
+          # Compare with previous version for breaking changes
+          python -m gibson.cli.main schema check --verbose
+          
+          # Store result for notifications
+          if [ $? -ne 0 ]; then
+            echo "BREAKING_CHANGES=true" >> $GITHUB_ENV
+          else
+            echo "BREAKING_CHANGES=false" >> $GITHUB_ENV
+          fi
+      
+      - name: Create issue for breaking changes
+        if: env.BREAKING_CHANGES == 'true'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const title = `Schema Breaking Changes Detected - ${new Date().toISOString().split('T')[0]}`;
+            const body = `## ⚠️ Breaking Schema Changes Detected
+            
+            Breaking changes were detected in the PayloadModel schema after merging to main.
+            
+            ### Commit:
+            - SHA: ${{ github.sha }}
+            - Author: ${{ github.actor }}
+            - Message: ${{ github.event.head_commit.message }}
+            
+            ### Action Required:
+            1. Review the breaking changes
+            2. Plan data migration strategy
+            3. Update dependent services
+            4. Document changes in release notes
+            
+            Run \`gibson schema diff\` to see detailed changes.`;
+            
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['schema-change', 'breaking-change', 'needs-attention']
+            });

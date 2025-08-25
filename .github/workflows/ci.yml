@@ -1,0 +1,231 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  lint:
+    name: Lint and Format Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-3.11-${{ hashFiles('**/poetry.lock') }}
+      
+      - name: Install dependencies
+        run: |
+          poetry install --no-interaction --no-root
+      
+      - name: Run Black formatter check
+        run: |
+          poetry run black --check src/ tests/
+      
+      - name: Run Ruff linter
+        run: |
+          poetry run ruff check src/ tests/
+      
+      - name: Run MyPy type checker
+        run: |
+          poetry run mypy src/
+
+  test:
+    name: Test Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+        exclude:
+          # Reduce matrix for faster CI on non-critical combinations
+          - os: macos-latest
+            python-version: '3.9'
+          - os: windows-latest
+            python-version: '3.9'
+          - os: macos-latest
+            python-version: '3.10'
+          - os: windows-latest
+            python-version: '3.10'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
+      
+      - name: Install dependencies
+        run: |
+          poetry install --no-interaction --no-root
+      
+      - name: Install project
+        run: |
+          poetry install --no-interaction
+      
+      - name: Run tests with coverage
+        run: |
+          poetry run pytest tests/ -v --cov=gibson --cov-report=xml --cov-report=term --cov-report=html
+      
+      - name: Upload coverage reports
+        if: matrix.python-version == '3.11' && matrix.os == 'ubuntu-latest'
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+      
+      - name: Upload coverage HTML report
+        if: matrix.python-version == '3.11' && matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: htmlcov/
+          retention-days: 7
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      
+      - name: Install dependencies
+        run: |
+          poetry install --no-interaction
+      
+      - name: Run Bandit security linter
+        run: |
+          pip install bandit[toml]
+          bandit -r src/ -ll -i -x tests/
+      
+      - name: Run Safety check
+        run: |
+          pip install safety
+          poetry export -f requirements.txt --without-hashes | safety check --stdin
+        continue-on-error: true  # Don't fail on known vulnerabilities in dependencies
+      
+      - name: Run pip-audit
+        run: |
+          pip install pip-audit
+          poetry export -f requirements.txt --without-hashes > requirements.txt
+          pip-audit -r requirements.txt
+        continue-on-error: true
+
+  integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      
+      - name: Install dependencies
+        run: |
+          poetry install --no-interaction --with ai
+      
+      - name: Run integration tests
+        run: |
+          poetry run pytest tests/integration/ -v --tb=short
+        continue-on-error: true  # Integration tests might require external services
+      
+      - name: Test CLI commands
+        run: |
+          poetry run gibson --version
+          poetry run gibson --help
+          poetry run gibson config show
+          poetry run gibson module list
+
+  build:
+    name: Build Check
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      
+      - name: Build package
+        run: |
+          poetry build
+      
+      - name: Check dist contents
+        run: |
+          ls -la dist/
+          tar -tzf dist/*.tar.gz | head -20
+      
+      - name: Test installation
+        run: |
+          pip install dist/*.whl
+          gibson --version
+          gibson --help
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist-${{ github.sha }}
+          path: dist/
+          retention-days: 1

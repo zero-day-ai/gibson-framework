@@ -1,0 +1,539 @@
+{
+  "$defs": {
+    "AttackDomain": {
+      "description": "Attack domain enumeration.",
+      "enum": [
+        "prompt",
+        "data",
+        "model",
+        "system",
+        "output"
+      ],
+      "title": "AttackDomain",
+      "type": "string"
+    },
+    "EncodingType": {
+      "description": "Payload encoding types.",
+      "enum": [
+        "none",
+        "base64",
+        "url_encode",
+        "html_encode",
+        "unicode_escape",
+        "rot13",
+        "hex_encode",
+        "json_escape",
+        "custom"
+      ],
+      "title": "EncodingType",
+      "type": "string"
+    },
+    "ModuleCategory": {
+      "description": "Module category enumeration.",
+      "enum": [
+        "injection",
+        "extraction",
+        "enumeration",
+        "fingerprinting",
+        "evasion",
+        "poisoning",
+        "theft",
+        "dos",
+        "manipulation",
+        "reconnaissance",
+        "llm_prompt_injection",
+        "sensitive_info_disclosure",
+        "model_theft",
+        "insecure_output_handling",
+        "training_data_poisoning",
+        "model_dos",
+        "unspecified"
+      ],
+      "title": "ModuleCategory",
+      "type": "string"
+    },
+    "OWASPCategory": {
+      "description": "OWASP LLM Top 10 categories.",
+      "enum": [
+        "OWASP-LLM-01",
+        "OWASP-LLM-02",
+        "OWASP-LLM-03",
+        "OWASP-LLM-04",
+        "OWASP-LLM-05",
+        "OWASP-LLM-06",
+        "OWASP-LLM-07",
+        "OWASP-LLM-08",
+        "OWASP-LLM-09",
+        "OWASP-LLM-10"
+      ],
+      "title": "OWASPCategory",
+      "type": "string"
+    },
+    "PayloadMetadataModel": {
+      "description": "Payload metadata model.",
+      "properties": {
+        "attack_vector": {
+          "description": "Attack vector description",
+          "minLength": 1,
+          "title": "Attack Vector",
+          "type": "string"
+        },
+        "compatible_targets": {
+          "description": "Compatible target types/systems",
+          "items": {
+            "type": "string"
+          },
+          "title": "Compatible Targets",
+          "type": "array"
+        },
+        "confidence_score": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Confidence in payload effectiveness",
+          "title": "Confidence Score"
+        },
+        "detection_signatures": {
+          "description": "Known detection signatures",
+          "items": {
+            "type": "string"
+          },
+          "title": "Detection Signatures",
+          "type": "array"
+        },
+        "evasion_techniques": {
+          "description": "Evasion techniques employed",
+          "items": {
+            "type": "string"
+          },
+          "title": "Evasion Techniques",
+          "type": "array"
+        },
+        "false_positive_rate": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "False positive rate",
+          "title": "False Positive Rate"
+        },
+        "incompatible_targets": {
+          "description": "Incompatible target types/systems",
+          "items": {
+            "type": "string"
+          },
+          "title": "Incompatible Targets",
+          "type": "array"
+        },
+        "last_successful": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Last successful usage timestamp",
+          "title": "Last Successful"
+        },
+        "last_used": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Last usage timestamp",
+          "title": "Last Used"
+        },
+        "payload_type": {
+          "$ref": "#/$defs/PayloadType",
+          "description": "Type of payload"
+        },
+        "stealth_score": {
+          "anyOf": [
+            {
+              "maximum": 10,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Stealth rating (1=easily detected, 10=very stealthy)",
+          "title": "Stealth Score"
+        },
+        "success_count": {
+          "default": 0,
+          "description": "Number of successful executions",
+          "minimum": 0,
+          "title": "Success Count",
+          "type": "integer"
+        },
+        "success_rate": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Historical success rate (0.0-1.0)",
+          "title": "Success Rate"
+        },
+        "target_versions": {
+          "description": "Specific target versions this payload works against",
+          "items": {
+            "type": "string"
+          },
+          "title": "Target Versions",
+          "type": "array"
+        },
+        "technique": {
+          "description": "Attack technique used",
+          "minLength": 1,
+          "title": "Technique",
+          "type": "string"
+        },
+        "usage_count": {
+          "default": 0,
+          "description": "Number of times payload has been used",
+          "minimum": 0,
+          "title": "Usage Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "payload_type",
+        "attack_vector",
+        "technique"
+      ],
+      "title": "PayloadMetadataModel",
+      "type": "object"
+    },
+    "PayloadStatus": {
+      "description": "Payload status enumeration.",
+      "enum": [
+        "active",
+        "inactive",
+        "experimental",
+        "deprecated",
+        "flagged",
+        "blocked"
+      ],
+      "title": "PayloadStatus",
+      "type": "string"
+    },
+    "PayloadType": {
+      "description": "Payload type enumeration.",
+      "enum": [
+        "prompt_injection",
+        "jailbreak",
+        "data_extraction",
+        "system_prompt_leak",
+        "training_data_poison",
+        "model_inversion",
+        "adversarial_example",
+        "backdoor_trigger",
+        "evasion_technique",
+        "dos_trigger",
+        "output_manipulation",
+        "custom"
+      ],
+      "title": "PayloadType",
+      "type": "string"
+    },
+    "PayloadVariantModel": {
+      "description": "Payload variant model for different encodings/transformations.",
+      "properties": {
+        "content": {
+          "description": "Variant payload content",
+          "minLength": 1,
+          "title": "Content",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Variant description",
+          "title": "Description"
+        },
+        "effectiveness_modifier": {
+          "default": 0.0,
+          "description": "Effectiveness modifier compared to base payload (-1 to 1)",
+          "maximum": 1.0,
+          "minimum": -1.0,
+          "title": "Effectiveness Modifier",
+          "type": "number"
+        },
+        "encoding": {
+          "$ref": "#/$defs/EncodingType",
+          "description": "Encoding type used"
+        },
+        "name": {
+          "description": "Variant name",
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "transformation_rules": {
+          "additionalProperties": true,
+          "description": "Transformation rules applied to create this variant",
+          "title": "Transformation Rules",
+          "type": "object"
+        }
+      },
+      "required": [
+        "name",
+        "content",
+        "encoding"
+      ],
+      "title": "PayloadVariantModel",
+      "type": "object"
+    },
+    "Severity": {
+      "description": "Security finding severity levels.",
+      "enum": [
+        "CRITICAL",
+        "HIGH",
+        "MEDIUM",
+        "LOW",
+        "INFO"
+      ],
+      "title": "Severity",
+      "type": "string"
+    }
+  },
+  "$id": "https://gibson.ai/schemas/1-0-0/payloadmodel.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Individual payload model.",
+  "example": {
+    "created_at": "2024-01-01T00:00:00Z",
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "updated_at": "2024-01-01T00:00:00Z"
+  },
+  "generated": "2025-08-23T01:00:01.673955Z",
+  "modelHash": "21ee9a4445bfbbd4",
+  "properties": {
+    "author": {
+      "description": "Payload author",
+      "minLength": 1,
+      "title": "Author",
+      "type": "string"
+    },
+    "category": {
+      "$ref": "#/$defs/ModuleCategory",
+      "description": "Module category"
+    },
+    "content": {
+      "description": "Payload content",
+      "minLength": 1,
+      "title": "Content",
+      "type": "string"
+    },
+    "created_at": {
+      "description": "Timestamp when the instance was created",
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "description": {
+      "anyOf": [
+        {
+          "maxLength": 2000,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Payload description",
+      "title": "Description"
+    },
+    "domain": {
+      "$ref": "#/$defs/AttackDomain",
+      "description": "Attack domain this payload belongs to"
+    },
+    "expected_indicators": {
+      "description": "Expected success indicators in response",
+      "items": {
+        "type": "string"
+      },
+      "title": "Expected Indicators",
+      "type": "array"
+    },
+    "failure_indicators": {
+      "description": "Indicators of payload failure/detection",
+      "items": {
+        "type": "string"
+      },
+      "title": "Failure Indicators",
+      "type": "array"
+    },
+    "id": {
+      "description": "Unique identifier for the model instance",
+      "format": "uuid",
+      "title": "Id",
+      "type": "string"
+    },
+    "license": {
+      "default": "MIT",
+      "description": "Payload license",
+      "title": "License",
+      "type": "string"
+    },
+    "metadata": {
+      "$ref": "#/$defs/PayloadMetadataModel",
+      "description": "Payload metadata"
+    },
+    "name": {
+      "description": "Payload name",
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "owasp_category": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/OWASPCategory"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Related OWASP category"
+    },
+    "references": {
+      "description": "Reference URLs or citations",
+      "items": {
+        "type": "string"
+      },
+      "title": "References",
+      "type": "array"
+    },
+    "safe_for_production": {
+      "default": false,
+      "description": "Whether payload is safe for production testing",
+      "title": "Safe For Production",
+      "type": "boolean"
+    },
+    "severity": {
+      "$ref": "#/$defs/Severity",
+      "default": "MEDIUM",
+      "description": "Expected severity if successful"
+    },
+    "source": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Payload source/origin",
+      "title": "Source"
+    },
+    "status": {
+      "$ref": "#/$defs/PayloadStatus",
+      "default": "active",
+      "description": "Payload status"
+    },
+    "tags": {
+      "description": "Payload tags",
+      "items": {
+        "type": "string"
+      },
+      "title": "Tags",
+      "type": "array"
+    },
+    "updated_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Timestamp when the instance was last updated",
+      "title": "Updated At"
+    },
+    "validated": {
+      "default": false,
+      "description": "Whether payload has been validated",
+      "title": "Validated",
+      "type": "boolean"
+    },
+    "variants": {
+      "description": "Payload variants (encodings, transformations)",
+      "items": {
+        "$ref": "#/$defs/PayloadVariantModel"
+      },
+      "title": "Variants",
+      "type": "array"
+    },
+    "version": {
+      "default": "1.0",
+      "description": "Payload version",
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "content",
+    "domain",
+    "category",
+    "author"
+  ],
+  "title": "PayloadModel",
+  "type": "object",
+  "version": "1-0-0",
+  "x-gibson": {
+    "generator": "gibson-schema-workflow",
+    "model": "PayloadModel",
+    "version": "1-0-0"
+  }
+}

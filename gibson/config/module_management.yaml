@@ -1,0 +1,96 @@
+# Module Management Configuration
+
+module_management:
+  # Registry settings
+  registry:
+    url: "https://registry.gibson.ai/api/v1"
+    timeout: 30
+    cache_ttl: 3600  # 1 hour
+    
+  # Installation settings
+  installation:
+    base_dir: "~/.gibson/modules"
+    backup_dir: "~/.gibson/modules/.backups"
+    temp_dir: "~/.gibson/modules/.temp"
+    force_overwrite: false
+    skip_validation: false
+    skip_dependencies: false
+    
+  # Cache settings
+  cache:
+    enabled: true
+    size: 1000
+    ttl: 300  # 5 minutes
+    cleanup_interval: 3600  # 1 hour
+    directory: "~/.gibson/cache"
+    
+  # Execution settings
+  execution:
+    max_execution_time: 300  # 5 minutes
+    max_memory_mb: 512
+    max_cpu_percent: 80
+    enable_resource_monitoring: true
+    sandbox_enabled: false
+    
+  # Security settings
+  security:
+    enable_signature_verification: false
+    trusted_signing_keys: []
+    max_code_complexity: 100
+    dangerous_imports_allowed: false
+    require_permission_declaration: true
+    quarantine_on_failure: true
+    
+  # Dependency resolution
+  dependencies:
+    resolution_strategy: "latest"  # latest, minimal, locked
+    allow_pre_releases: false
+    max_resolution_time: 60
+    pip_index_url: "https://pypi.org/simple"
+    pip_extra_index_urls: []
+    
+  # Version management
+  versioning:
+    check_for_updates: true
+    update_check_interval: 86400  # 24 hours
+    auto_update: false
+    backup_before_update: true
+    
+  # Performance tracking
+  metrics:
+    enabled: true
+    persist_interval: 300  # 5 minutes
+    retention_days: 30
+    metrics_dir: "~/.gibson/metrics"
+    
+  # Module discovery
+  discovery:
+    scan_paths:
+      - "~/.gibson/modules"
+      - "./gibson/core/modules"
+    auto_discover: true
+    discovery_interval: 3600  # 1 hour
+    
+  # Logging
+  logging:
+    level: "INFO"
+    file: "~/.gibson/logs/module_management.log"
+    max_size_mb: 100
+    backup_count: 5
+    
+  # Network settings
+  network:
+    proxy: null
+    ssl_verify: true
+    connect_timeout: 10
+    read_timeout: 30
+    max_retries: 3
+    
+  # Feature flags
+  features:
+    enable_git_fetcher: true
+    enable_registry_fetcher: true
+    enable_local_fetcher: true
+    enable_auto_dependency_resolution: true
+    enable_module_signing: false
+    enable_sandbox_execution: false

@@ -1,0 +1,322 @@
+name: Publish to Package Registries
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+jobs:
+  publish-docker:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            zerodayai/gibson
+            ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=tag
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+      
+      - name: Create Dockerfile
+        run: |
+          cat > Dockerfile << 'EOF'
+          FROM python:3.11-slim
+          
+          # Install system dependencies
+          RUN apt-get update && apt-get install -y \
+              git \
+              curl \
+              && rm -rf /var/lib/apt/lists/*
+          
+          # Create non-root user
+          RUN useradd -m -s /bin/bash gibson
+          
+          # Set working directory
+          WORKDIR /app
+          
+          # Copy project files
+          COPY pyproject.toml poetry.lock* ./
+          
+          # Install Poetry
+          RUN pip install --no-cache-dir poetry
+          
+          # Install dependencies
+          RUN poetry config virtualenvs.create false && \
+              poetry install --no-interaction --no-ansi --no-root
+          
+          # Copy application code
+          COPY src/ ./src/
+          COPY gibson/ ./gibson/
+          COPY modules/ ./modules/
+          COPY configs/ ./configs/
+          
+          # Install the application
+          RUN poetry install --no-interaction --no-ansi
+          
+          # Switch to non-root user
+          USER gibson
+          
+          # Set entrypoint
+          ENTRYPOINT ["gibson"]
+          CMD ["--help"]
+          EOF
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  publish-homebrew:
+    name: Update Homebrew Formula
+    runs-on: ubuntu-latest
+    needs: publish-docker
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Get release version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${{ github.event.release.tag_name }}"
+          fi
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+          echo "VERSION_NUMBER=${VERSION#v}" >> $GITHUB_OUTPUT
+      
+      - name: Create Homebrew Formula
+        run: |
+          mkdir -p Formula
+          cat > Formula/gibson.rb << 'EOF'
+          class Gibson < Formula
+            desc "AI/ML Security Testing Framework"
+            homepage "https://github.com/zero-day-ai/gibson-cli"
+            version "${{ steps.version.outputs.VERSION_NUMBER }}"
+            
+            if OS.mac?
+              if Hardware::CPU.arm?
+                url "https://github.com/zero-day-ai/gibson-cli/releases/download/${{ steps.version.outputs.VERSION }}/gibson-darwin-arm64.tar.gz"
+                sha256 "PLACEHOLDER_SHA256_DARWIN_ARM64"
+              else
+                url "https://github.com/zero-day-ai/gibson-cli/releases/download/${{ steps.version.outputs.VERSION }}/gibson-darwin-amd64.tar.gz"
+                sha256 "PLACEHOLDER_SHA256_DARWIN_AMD64"
+              end
+            elsif OS.linux?
+              if Hardware::CPU.arm?
+                url "https://github.com/zero-day-ai/gibson-cli/releases/download/${{ steps.version.outputs.VERSION }}/gibson-linux-arm64.tar.gz"
+                sha256 "PLACEHOLDER_SHA256_LINUX_ARM64"
+              else
+                url "https://github.com/zero-day-ai/gibson-cli/releases/download/${{ steps.version.outputs.VERSION }}/gibson-linux-amd64.tar.gz"
+                sha256 "PLACEHOLDER_SHA256_LINUX_AMD64"
+              end
+            end
+            
+            depends_on "python@3.11"
+            
+            def install
+              bin.install "gibson"
+            end
+            
+            test do
+              system "#{bin}/gibson", "--version"
+            end
+          end
+          EOF
+      
+      - name: Upload Homebrew formula
+        uses: actions/upload-artifact@v3
+        with:
+          name: homebrew-formula
+          path: Formula/gibson.rb
+
+  create-packages:
+    name: Create System Packages
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            package_type: deb
+          - os: ubuntu-latest
+            package_type: rpm
+          - os: macos-latest
+            package_type: pkg
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install Poetry and dependencies
+        run: |
+          pip install poetry
+          poetry install --no-interaction
+      
+      - name: Build DEB package (Ubuntu)
+        if: matrix.os == 'ubuntu-latest' && matrix.package_type == 'deb'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y dpkg-dev debhelper
+          
+          # Create debian package structure
+          mkdir -p debian/gibson/DEBIAN
+          mkdir -p debian/gibson/usr/bin
+          mkdir -p debian/gibson/usr/share/doc/gibson
+          
+          # Copy binary
+          poetry run python -m nuitka \
+            --standalone \
+            --onefile \
+            --output-dir=debian/gibson/usr/bin \
+            --output-filename=gibson \
+            --include-package=gibson \
+            --enable-plugin=anti-bloat \
+            --assume-yes-for-downloads \
+            src/gibson/main.py
+          
+          # Create control file
+          cat > debian/gibson/DEBIAN/control << EOF
+          Package: gibson
+          Version: $(poetry version -s)
+          Section: utils
+          Priority: optional
+          Architecture: amd64
+          Depends: python3 (>= 3.9)
+          Maintainer: Zero-Day.ai <security@zero-day.ai>
+          Description: AI/ML Security Testing Framework
+           Gibson is a developer-first CLI for comprehensive AI security testing.
+          EOF
+          
+          # Build package
+          dpkg-deb --build debian/gibson gibson_$(poetry version -s)_amd64.deb
+      
+      - name: Build RPM package (Ubuntu)
+        if: matrix.os == 'ubuntu-latest' && matrix.package_type == 'rpm'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rpm
+          
+          # Create RPM build structure
+          mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+          
+          # Create spec file
+          cat > ~/rpmbuild/SPECS/gibson.spec << EOF
+          Name:           gibson
+          Version:        $(poetry version -s)
+          Release:        1%{?dist}
+          Summary:        AI/ML Security Testing Framework
+          
+          License:        Apache-2.0
+          URL:            https://github.com/zero-day-ai/gibson-cli
+          Source0:        gibson-$(poetry version -s).tar.gz
+          
+          Requires:       python3 >= 3.9
+          
+          %description
+          Gibson is a developer-first CLI for comprehensive AI security testing.
+          
+          %prep
+          %setup -q
+          
+          %build
+          # Build is handled by Poetry
+          
+          %install
+          mkdir -p %{buildroot}/usr/bin
+          cp gibson %{buildroot}/usr/bin/
+          
+          %files
+          /usr/bin/gibson
+          
+          %changelog
+          * $(date +"%a %b %d %Y") Zero-Day.ai <security@zero-day.ai> - $(poetry version -s)-1
+          - Initial package release
+          EOF
+          
+          # Build RPM
+          rpmbuild -ba ~/rpmbuild/SPECS/gibson.spec
+      
+      - name: Build PKG installer (macOS)
+        if: matrix.os == 'macos-latest' && matrix.package_type == 'pkg'
+        run: |
+          # Build standalone binary
+          poetry run python -m nuitka \
+            --standalone \
+            --onefile \
+            --output-dir=dist \
+            --output-filename=gibson \
+            --include-package=gibson \
+            --enable-plugin=anti-bloat \
+            --assume-yes-for-downloads \
+            src/gibson/main.py
+          
+          # Create package structure
+          mkdir -p pkg/usr/local/bin
+          cp dist/gibson pkg/usr/local/bin/
+          
+          # Create installer package
+          pkgbuild --root pkg \
+            --identifier ai.zero-day.gibson \
+            --version $(poetry version -s) \
+            --install-location / \
+            gibson-$(poetry version -s).pkg
+      
+      - name: Upload packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: system-packages-${{ matrix.os }}-${{ matrix.package_type }}
+          path: |
+            *.deb
+            *.rpm
+            *.pkg

@@ -1,0 +1,12 @@
+[
+  {
+    "version": "1.25.0824",
+    "hash": "0de6809c2ee44e5d021b355115b5a8664096a440a63a911989b5b1bc613b4684",
+    "timestamp": "2025-08-24 19:42:46.101035",
+    "model_name": "PayloadModel",
+    "changes_from_previous": null,
+    "migration_id": "20250824194246_82289041",
+    "applied": true,
+    "applied_at": "2025-08-24T19:42:46.101224"
+  }
+]

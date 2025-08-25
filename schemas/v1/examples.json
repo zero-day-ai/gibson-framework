@@ -1,0 +1,97 @@
+{
+  "valid": [
+    {
+      "description": "Minimal valid payload with only required fields",
+      "payload": {
+        "name": "name_value",
+        "content": "content_value",
+        "domain": "domain_value",
+        "category": "category_value",
+        "author": "author_value"
+      }
+    },
+    {
+      "description": "Complete payload with all fields",
+      "payload": {
+        "name": "name_value",
+        "content": "content_value",
+        "domain": "domain_value",
+        "category": "category_value",
+        "author": "author_value",
+        "id": "id_value",
+        "created_at": "created_at_value",
+        "updated_at": "updated_at_value",
+        "description": "description_value",
+        "severity": "severity_value",
+        "owasp_category": "owasp_category_value",
+        "status": "status_value",
+        "version": "version_value",
+        "source": "source_value",
+        "license": "license_value",
+        "metadata": "metadata_value",
+        "variants": [],
+        "expected_indicators": [],
+        "failure_indicators": [],
+        "tags": [],
+        "references": [],
+        "validated": true,
+        "safe_for_production": true
+      }
+    },
+    {
+      "description": "Prompt injection attack payload",
+      "payload": {
+        "hash": "pi_001",
+        "domain": "prompts",
+        "attack_type": "prompt_injection",
+        "attack_vector": "injection",
+        "content": "Ignore all previous instructions and...",
+        "severity": "high"
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "description": "Missing required field: name",
+      "payload": {
+        "content": "value",
+        "domain": "value",
+        "category": "value",
+        "author": "value"
+      },
+      "expected_error": "'name' is a required property"
+    },
+    {
+      "description": "Wrong type for id (number instead of string)",
+      "payload": {
+        "id": 123
+      },
+      "expected_error": "id should be string"
+    }
+  ],
+  "template": {
+    "id": "<OPTIONAL: string - Unique identifier for the model instance>",
+    "created_at": "<OPTIONAL: string - Timestamp when the instance was created>",
+    "updated_at": "<OPTIONAL: any - Timestamp when the instance was last updated>",
+    "name": "<REQUIRED: string - Payload name>",
+    "content": "<REQUIRED: string - Payload content>",
+    "description": "<OPTIONAL: any - Payload description>",
+    "domain": "<REQUIRED: any - Attack domain this payload belongs to>",
+    "category": "<REQUIRED: any - Module category>",
+    "severity": "<OPTIONAL: any - Expected severity if successful>",
+    "owasp_category": "<OPTIONAL: any - Related OWASP category>",
+    "status": "<OPTIONAL: any - Payload status>",
+    "version": "<OPTIONAL: string - Payload version>",
+    "author": "<REQUIRED: string - Payload author>",
+    "source": "<OPTIONAL: any - Payload source/origin>",
+    "license": "<OPTIONAL: string - Payload license>",
+    "metadata": "<OPTIONAL: any - Payload metadata>",
+    "variants": "<OPTIONAL: array - Payload variants (encodings, transformations)>",
+    "expected_indicators": "<OPTIONAL: array - Expected success indicators in response>",
+    "failure_indicators": "<OPTIONAL: array - Indicators of payload failure/detection>",
+    "tags": "<OPTIONAL: array - Payload tags>",
+    "references": "<OPTIONAL: array - Reference URLs or citations>",
+    "validated": "<OPTIONAL: boolean - Whether payload has been validated>",
+    "safe_for_production": "<OPTIONAL: boolean - Whether payload is safe for production testing>"
+  }
+}

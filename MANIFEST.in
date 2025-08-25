@@ -1,0 +1,22 @@
+# Include additional files in the package distribution
+include README.md
+include LICENSE
+include pyproject.toml
+include gibson/py.typed
+
+# Include configuration files
+recursive-include configs *.yaml *.yml
+
+# Include data files (payloads, prompts, etc.)
+recursive-include gibson/data *.yaml *.yml *.json
+
+# Exclude development and testing files
+recursive-exclude tests *
+recursive-exclude docs *
+exclude *.pyc
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+exclude .gitignore
+exclude .pre-commit-config.yaml
+exclude tox.ini
+exclude Makefile

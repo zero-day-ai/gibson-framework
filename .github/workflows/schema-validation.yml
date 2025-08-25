@@ -1,0 +1,158 @@
+name: Schema Validation
+
+on:
+  push:
+    paths:
+      - 'gibson/models/**/*.py'
+      - 'schemas/**/*.json'
+      - 'scripts/generate_schemas.py'
+      - 'gibson/utils/schema_*.py'
+  pull_request:
+    paths:
+      - 'gibson/models/**/*.py'
+      - 'schemas/**/*.json'
+      - 'scripts/generate_schemas.py'
+      - 'gibson/utils/schema_*.py'
+
+jobs:
+  validate-schemas:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: 1.4.2
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+    
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+    
+    - name: Install dependencies
+      run: |
+        poetry install --with dev
+    
+    - name: Generate schemas
+      run: |
+        poetry run python scripts/generate_schemas.py --version check
+    
+    - name: Check for uncommitted schema changes
+      run: |
+        if [[ -n $(git status --porcelain schemas/) ]]; then
+          echo "Error: Schema files have uncommitted changes"
+          echo "Please run 'python scripts/generate_schemas.py' and commit the changes"
+          git diff schemas/
+          exit 1
+        fi
+    
+    - name: Validate schema structure
+      run: |
+        poetry run python -c "
+        import json
+        from pathlib import Path
+        from jsonschema import Draft202012Validator
+        
+        schemas_dir = Path('schemas/latest')
+        for schema_file in schemas_dir.glob('*.json'):
+            if schema_file.name.endswith('.min.json'):
+                continue
+            
+            with open(schema_file) as f:
+                schema = json.load(f)
+            
+            # Validate schema structure
+            try:
+                Draft202012Validator.check_schema(schema)
+                print(f'✓ {schema_file.name} is valid')
+            except Exception as e:
+                print(f'✗ {schema_file.name} is invalid: {e}')
+                exit(1)
+        "
+    
+    - name: Test payload validation
+      run: |
+        poetry run pytest tests/unit/utils/test_payload_validator.py -v
+    
+    - name: Test schema generation
+      run: |
+        poetry run pytest tests/unit/utils/test_schema_generator.py -v
+    
+    - name: Check breaking changes
+      if: github.event_name == 'pull_request'
+      run: |
+        # Fetch main branch schemas
+        git fetch origin main:main
+        
+        # Check for breaking changes
+        poetry run python -c "
+        import json
+        import sys
+        from pathlib import Path
+        from gibson.utils.schema_diff import BreakingChangeDetector
+        
+        # Compare with main branch
+        detector = BreakingChangeDetector()
+        
+        # Get latest schema from main
+        main_schema_file = Path('schemas/latest/payloadmodel.json')
+        if main_schema_file.exists():
+            # Checkout main version
+            import subprocess
+            subprocess.run(['git', 'show', 'main:schemas/latest/payloadmodel.json'], 
+                          capture_output=True, text=True, check=True)
+            
+            with open(main_schema_file) as f:
+                main_schema = json.load(f)
+            
+            # Get current schema
+            with open('schemas/latest/payloadmodel.json') as f:
+                current_schema = json.load(f)
+            
+            # Detect breaking changes
+            breaking = detector.detect_breaking_changes(main_schema, current_schema)
+            
+            if breaking:
+                print('⚠️  Breaking changes detected:')
+                for change in breaking:
+                    print(f'  - {change}')
+                print('\\nPlease bump the major version number')
+                sys.exit(1)
+            else:
+                print('✓ No breaking changes detected')
+        "
+
+  schema-completeness:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Check schema completeness
+      run: |
+        # Ensure all required schema files exist
+        REQUIRED_FILES=(
+          "schemas/latest/payloadmodel.json"
+          "schemas/latest/payloadmodel.d.ts"
+          "schemas/latest/payloadmodel.md"
+          "schemas/latest/examples.json"
+        )
+        
+        for file in "${REQUIRED_FILES[@]}"; do
+          if [[ ! -f "$file" ]]; then
+            echo "Error: Required file $file is missing"
+            exit 1
+          fi
+        done
+        
+        echo "✓ All required schema files present"

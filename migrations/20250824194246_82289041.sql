@@ -1,0 +1,28 @@
+-- Auto-generated migration
+-- Revision: 20250824194246_82289041
+-- Description: Schema sync for version 1.25.0824
+
+ALTER TABLE payloads ADD COLUMN id VARCHAR(255) NULL ;
+ALTER TABLE payloads ADD COLUMN created_at VARCHAR(255) NULL ;
+ALTER TABLE payloads ADD COLUMN updated_at TEXT NULL ;
+ALTER TABLE payloads ADD COLUMN name VARCHAR(255) NOT NULL ;
+ALTER TABLE payloads ADD COLUMN content VARCHAR(255) NOT NULL ;
+ALTER TABLE payloads ADD COLUMN description TEXT NULL ;
+ALTER TABLE payloads ADD COLUMN hash TEXT NULL ;
+ALTER TABLE payloads ADD COLUMN domain TEXT NOT NULL ;
+ALTER TABLE payloads ADD COLUMN category TEXT NOT NULL ;
+ALTER TABLE payloads ADD COLUMN severity TEXT NULL DEFAULT MEDIUM;
+ALTER TABLE payloads ADD COLUMN owasp_category TEXT NULL ;
+ALTER TABLE payloads ADD COLUMN status TEXT NULL DEFAULT active;
+ALTER TABLE payloads ADD COLUMN version VARCHAR(255) NULL DEFAULT 1.0;
+ALTER TABLE payloads ADD COLUMN author VARCHAR(255) NOT NULL ;
+ALTER TABLE payloads ADD COLUMN source TEXT NULL ;
+ALTER TABLE payloads ADD COLUMN license VARCHAR(255) NULL DEFAULT MIT;
+ALTER TABLE payloads ADD COLUMN metadata TEXT NULL ;
+ALTER TABLE payloads ADD COLUMN variants JSON NULL ;
+ALTER TABLE payloads ADD COLUMN expected_indicators JSON NULL ;
+ALTER TABLE payloads ADD COLUMN failure_indicators JSON NULL ;
+ALTER TABLE payloads ADD COLUMN tags JSON NULL ;
+ALTER TABLE payloads ADD COLUMN references JSON NULL ;
+ALTER TABLE payloads ADD COLUMN validated BOOLEAN NULL DEFAULT False;
+ALTER TABLE payloads ADD COLUMN safe_for_production BOOLEAN NULL DEFAULT False;

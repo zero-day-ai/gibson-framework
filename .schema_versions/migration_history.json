@@ -1,0 +1,11 @@
+[
+  {
+    "migration_id": "20250824194246_82289041",
+    "version": "1.25.0824",
+    "applied_at": "2025-08-24T19:42:46.101217",
+    "execution_time": 0,
+    "status": "completed",
+    "error_message": null,
+    "rolled_back": false
+  }
+]

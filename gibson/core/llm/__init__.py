@@ -1,0 +1,253 @@
+"""
+LLM integration module for Gibson Framework.
+
+Provides comprehensive type definitions and utilities for working with
+Large Language Models through LiteLLM integration.
+"""
+
+from gibson.core.llm.types import (
+    AnthropicConfig,
+    # Protocol interfaces
+    AsyncLLMClient,
+    AsyncLLMManager,
+    AzureOpenAIConfig,
+    # Configuration models
+    BaseProviderConfig,
+    BedrockConfig,
+    # Request/Response models
+    ChatMessage,
+    CompletionChoice,
+    CompletionRequest,
+    CompletionResponse,
+    # Usage and cost models
+    CostModel,
+    FallbackConfig,
+    FinishReason,
+    # Error models
+    LLMError,
+    LLMErrorType,
+    # Enums
+    LLMProvider,
+    LLMRequest,
+    # Type aliases
+    LLMResponse,
+    LoadBalancingConfig,
+    ModelType,
+    OpenAIConfig,
+    ProviderConfig,
+    RateLimitConfig,
+    ResponseFormat,
+    StreamAsyncIterator,
+    StreamChoice,
+    StreamResponse,
+    TokenType,
+    TokenUsage,
+    UsageAggregation,
+    UsageRecord,
+    VertexAIConfig,
+)
+from gibson.core.llm.environment import EnvironmentManager, EnvironmentDiscoveryResult
+from gibson.core.llm.client_factory import LLMClientFactory, create_llm_client_factory
+from gibson.core.llm.completion import (
+    CompletionService,
+    PromptTemplate,
+    TemplateManager,
+    ResponseCache,
+    UsageTracker as SimpleUsageTracker,  # Rename to avoid conflict
+    ModelSelector,
+    ModelCapabilities,
+    create_completion_service,
+    quick_complete,
+    quick_stream,
+)
+from gibson.core.llm.usage_tracking import (
+    UsageTracker,
+    CostCalculator,
+    BudgetManager,
+    UsageDatabase,
+    UsageReporter,
+    UsageSummary,
+    TrendData,
+    BudgetStatus,
+    CostBreakdown,
+    AggregationPeriod,
+    ExportFormat,
+    BudgetType,
+    AlertLevel,
+    create_usage_tracker,
+    estimate_request_cost,
+)
+from gibson.core.llm.error_handling import (
+    LLMErrorHandler,
+    ErrorClassifier,
+    RetryStrategy,
+    CircuitBreaker,
+    ErrorRecovery,
+    ErrorLogger,
+    UserErrorFormatter,
+    RetryConfig,
+    CircuitBreakerConfig,
+    ErrorContext,
+    ErrorSeverity,
+    RetryDecision,
+    RecoveryStrategy,
+    CircuitBreakerState,
+    create_error_handler,
+    with_retry,
+    with_fallback,
+    with_circuit_breaker,
+)
+from gibson.core.llm.rate_limiting import (
+    RateLimiter,
+    DistributedRateLimiter,
+    ProviderLimits,
+    TokenBucket,
+    RequestQueue,
+    BackpressureManager,
+    RateStatus,
+    QueueStatus,
+    QueuedRequest,
+    RateLimitType,
+    Priority,
+    BackpressureAction,
+    RateLimitStatus,
+    AlgorithmType,
+    create_rate_limiter,
+    PROVIDER_DEFAULTS,
+)
+from gibson.core.llm.fallback import (
+    LoadBalancingStrategy,
+    FallbackStrategy,
+    ProviderEndpoint,
+    FallbackConfig as FallbackManagerConfig,  # Rename to avoid conflict with types
+    LoadBalancerConfig,
+    ProviderPool,
+    FallbackManager,
+    LoadBalancedClient,
+    create_load_balancer,
+    DEFAULT_FALLBACK_CHAINS,
+    PROVIDER_CAPABILITIES,
+)
+
+__all__ = [
+    # Enums
+    "LLMProvider",
+    "ModelType",
+    "TokenType",
+    "ResponseFormat",
+    "FinishReason",
+    "LLMErrorType",
+    # Configuration models
+    "BaseProviderConfig",
+    "OpenAIConfig",
+    "AnthropicConfig",
+    "AzureOpenAIConfig",
+    "BedrockConfig",
+    "VertexAIConfig",
+    "ProviderConfig",
+    "RateLimitConfig",
+    "FallbackConfig",
+    "LoadBalancingConfig",
+    # Request/Response models
+    "ChatMessage",
+    "CompletionRequest",
+    "TokenUsage",
+    "CompletionChoice",
+    "CompletionResponse",
+    "StreamChoice",
+    "StreamResponse",
+    # Error models
+    "LLMError",
+    # Protocol interfaces
+    "AsyncLLMClient",
+    "AsyncLLMManager",
+    # Usage and cost models
+    "CostModel",
+    "UsageRecord",
+    "UsageAggregation",
+    # Type aliases
+    "LLMResponse",
+    "LLMRequest",
+    "StreamAsyncIterator",
+    # Usage tracking system
+    "CostCalculator",
+    "BudgetManager",
+    "UsageDatabase",
+    "UsageReporter",
+    "UsageSummary",
+    "TrendData",
+    "BudgetStatus",
+    "CostBreakdown",
+    "AggregationPeriod",
+    "ExportFormat",
+    "BudgetType",
+    "AlertLevel",
+    "create_usage_tracker",
+    "estimate_request_cost",
+    # Environment discovery
+    "EnvironmentManager",
+    "EnvironmentDiscoveryResult",
+    # Client factory
+    "LLMClientFactory",
+    "create_llm_client_factory",
+    # Completion service
+    "CompletionService",
+    "PromptTemplate",
+    "TemplateManager",
+    "ResponseCache",
+    "SimpleUsageTracker",  # Simple usage tracker from completion
+    "UsageTracker",  # Comprehensive usage tracker
+    "ModelSelector",
+    "ModelCapabilities",
+    "create_completion_service",
+    "quick_complete",
+    "quick_stream",
+    # Error handling
+    "LLMErrorHandler",
+    "ErrorClassifier",
+    "RetryStrategy",
+    "CircuitBreaker",
+    "ErrorRecovery",
+    "ErrorLogger",
+    "UserErrorFormatter",
+    "RetryConfig",
+    "CircuitBreakerConfig",
+    "ErrorContext",
+    "ErrorSeverity",
+    "RetryDecision",
+    "RecoveryStrategy",
+    "CircuitBreakerState",
+    "create_error_handler",
+    "with_retry",
+    "with_fallback",
+    "with_circuit_breaker",
+    # Rate limiting
+    "RateLimiter",
+    "DistributedRateLimiter",
+    "ProviderLimits",
+    "TokenBucket",
+    "RequestQueue",
+    "BackpressureManager",
+    "RateStatus",
+    "QueueStatus",
+    "QueuedRequest",
+    "RateLimitType",
+    "Priority",
+    "BackpressureAction",
+    "RateLimitStatus",
+    "AlgorithmType",
+    "create_rate_limiter",
+    "PROVIDER_DEFAULTS",
+    # Fallback and load balancing
+    "LoadBalancingStrategy",
+    "FallbackStrategy",
+    "ProviderEndpoint",
+    "FallbackManagerConfig",
+    "LoadBalancerConfig",
+    "ProviderPool",
+    "FallbackManager",
+    "LoadBalancedClient",
+    "create_load_balancer",
+    "DEFAULT_FALLBACK_CHAINS",
+    "PROVIDER_CAPABILITIES",
+]
