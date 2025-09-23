@@ -1,0 +1,43 @@
+[Unit]
+Description=Gibson Framework - AI/ML Security Testing
+Documentation=https://github.com/gibson-sec/gibson-framework-2
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=gibson
+Group=gibson
+ExecStart=/usr/local/bin/gibson serve --config /etc/gibson/config.yaml
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/gibson /var/log/gibson
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+RestrictNamespaces=true
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+
+# Working directory
+WorkingDirectory=/var/lib/gibson
+
+# Environment
+Environment=GIBSON_CONFIG=/etc/gibson/config.yaml
+Environment=GIBSON_DATA_DIR=/var/lib/gibson
+Environment=GIBSON_LOG_DIR=/var/log/gibson
+
+[Install]
+WantedBy=multi-user.target

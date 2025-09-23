@@ -1,0 +1,39 @@
+[
+  {
+    "id": "api-abuse-001",
+    "name": "Rate Limit Test",
+    "content": "Rapid fire API calls to test rate limiting",
+    "domain": "interface",
+    "payload_type": "query",
+    "description": "Tests API rate limiting by making rapid requests",
+    "severity": "medium",
+    "tags": ["api-abuse", "rate-limiting", "dos"],
+    "variables": {
+      "requests_per_second": 100,
+      "duration": 60
+    },
+    "metadata": {
+      "category": "availability",
+      "technique": "rate-exhaustion"
+    },
+    "version": 1,
+    "language": "http"
+  },
+  {
+    "id": "api-abuse-002",
+    "name": "Authentication Bypass",
+    "content": "{'auth': null, 'admin': true}",
+    "domain": "interface",
+    "payload_type": "query",
+    "description": "Attempts to bypass authentication by manipulating auth fields",
+    "severity": "critical",
+    "tags": ["api-abuse", "auth-bypass", "privilege-escalation"],
+    "variables": {},
+    "metadata": {
+      "category": "authentication",
+      "technique": "auth-manipulation"
+    },
+    "version": 1,
+    "language": "json"
+  }
+]

@@ -1,0 +1,41 @@
+name: sql-injection-detector
+version: 1.0.0
+description: Detects SQL injection vulnerabilities in web applications and APIs
+author: Gibson Framework Team
+executable: injection
+args: []
+env: {}
+timeout: 60s
+max_memory: 134217728  # 128MB
+domains:
+  - interface
+capabilities:
+  - sql-injection
+  - web-assessment
+  - payload-testing
+config:
+  payloads:
+    type: string
+    description: "Comma-separated list of custom SQL injection payloads"
+    required: false
+    default: ""
+  timeout:
+    type: int
+    description: "Request timeout in seconds"
+    required: false
+    default: 10
+  follow_redirects:
+    type: bool
+    description: "Follow HTTP redirects during testing"
+    required: false
+    default: true
+  max_depth:
+    type: int
+    description: "Maximum crawl depth for discovering injection points"
+    required: false
+    default: 3
+  rate_limit:
+    type: int
+    description: "Delay between requests in milliseconds"
+    required: false
+    default: 100

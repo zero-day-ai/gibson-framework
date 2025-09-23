@@ -1,0 +1,21 @@
+{
+  "id": "approval_1758293375419_ab898hfc3",
+  "title": "Gibson SDK Extraction - Design Document",
+  "filePath": ".spec-workflow/specs/gibson-sdk-extraction/design.md",
+  "type": "document",
+  "status": "needs-revision",
+  "createdAt": "2025-09-19T14:49:35.419Z",
+  "category": "spec",
+  "categoryName": "gibson-sdk-extraction",
+  "response": "Feedback Summary (1 comments):\n\nGeneral Comments:\n1. It should follow the main gibson framework codebase\n\n",
+  "annotations": "{\n  \"decision\": \"needs-revision\",\n  \"comments\": [\n    {\n      \"type\": \"general\",\n      \"comment\": \"It should follow the main gibson framework codebase\",\n      \"timestamp\": \"2025-09-19T14:50:23.351Z\",\n      \"id\": \"comment_1758293423351_n9dx1kf1m\"\n    }\n  ],\n  \"summary\": \"Feedback Summary (1 comments):\\n\\nGeneral Comments:\\n1. It should follow the main gibson framework codebase\\n\\n\",\n  \"timestamp\": \"2025-09-19T15:01:13.128Z\"\n}",
+  "respondedAt": "2025-09-19T15:01:13.131Z",
+  "comments": [
+    {
+      "type": "general",
+      "comment": "It should follow the main gibson framework codebase",
+      "timestamp": "2025-09-19T14:50:23.351Z",
+      "id": "comment_1758293423351_n9dx1kf1m"
+    }
+  ]
+}

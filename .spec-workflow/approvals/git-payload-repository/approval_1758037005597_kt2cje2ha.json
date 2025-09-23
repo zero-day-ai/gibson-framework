@@ -1,0 +1,21 @@
+{
+  "id": "approval_1758037005597_kt2cje2ha",
+  "title": "Requirements for Git Payload Repository Management",
+  "filePath": ".spec-workflow/specs/git-payload-repository/requirements.md",
+  "type": "document",
+  "status": "needs-revision",
+  "createdAt": "2025-09-16T15:36:45.597Z",
+  "category": "spec",
+  "categoryName": "git-payload-repository",
+  "response": "Feedback Summary (1 comments):\n\nGeneral Comments:\n1. It should clone to a depth of 1, unless overridden\n\n",
+  "annotations": "{\n  \"decision\": \"needs-revision\",\n  \"comments\": [\n    {\n      \"type\": \"general\",\n      \"comment\": \"It should clone to a depth of 1, unless overridden\",\n      \"timestamp\": \"2025-09-16T15:43:05.185Z\",\n      \"id\": \"comment_1758037385185_dc2nebu77\"\n    }\n  ],\n  \"summary\": \"Feedback Summary (1 comments):\\n\\nGeneral Comments:\\n1. It should clone to a depth of 1, unless overridden\\n\\n\",\n  \"timestamp\": \"2025-09-16T15:43:40.044Z\"\n}",
+  "respondedAt": "2025-09-16T15:43:40.046Z",
+  "comments": [
+    {
+      "type": "general",
+      "comment": "It should clone to a depth of 1, unless overridden",
+      "timestamp": "2025-09-16T15:43:05.185Z",
+      "id": "comment_1758037385185_dc2nebu77"
+    }
+  ]
+}

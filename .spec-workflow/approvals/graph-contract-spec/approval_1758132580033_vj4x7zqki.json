@@ -1,0 +1,27 @@
+{
+  "id": "approval_1758132580033_vj4x7zqki",
+  "title": "Graph Contract Specification - Requirements Document",
+  "filePath": ".spec-workflow/specs/graph-contract-spec/requirements.md",
+  "type": "document",
+  "status": "needs-revision",
+  "createdAt": "2025-09-17T18:09:40.033Z",
+  "category": "spec",
+  "categoryName": "graph-contract-spec",
+  "response": "Feedback Summary (1 comments):\n\nSpecific Text Comments:\n1. \"3.0 contract between Gibson\": the gibson knowledge graph plugin, not the framework\n",
+  "annotations": "{\n  \"decision\": \"needs-revision\",\n  \"comments\": [\n    {\n      \"type\": \"selection\",\n      \"comment\": \"the gibson knowledge graph plugin, not the framework\",\n      \"timestamp\": \"2025-09-17T18:39:27.348Z\",\n      \"selectedText\": \"3.0 contract between Gibson\",\n      \"highlightColor\": {\n        \"bg\": \"rgba(255, 235, 59, 0.3)\",\n        \"border\": \"#FFEB3B\",\n        \"name\": \"#ffeb3b\"\n      },\n      \"id\": \"comment_1758134367348_eywgq98cm\"\n    }\n  ],\n  \"summary\": \"Feedback Summary (1 comments):\\n\\nSpecific Text Comments:\\n1. \\\"3.0 contract between Gibson\\\": the gibson knowledge graph plugin, not the framework\\n\",\n  \"timestamp\": \"2025-09-17T18:39:52.491Z\"\n}",
+  "respondedAt": "2025-09-17T18:39:52.494Z",
+  "comments": [
+    {
+      "type": "selection",
+      "comment": "the gibson knowledge graph plugin, not the framework",
+      "timestamp": "2025-09-17T18:39:27.348Z",
+      "selectedText": "3.0 contract between Gibson",
+      "highlightColor": {
+        "bg": "rgba(255, 235, 59, 0.3)",
+        "border": "#FFEB3B",
+        "name": "#ffeb3b"
+      },
+      "id": "comment_1758134367348_eywgq98cm"
+    }
+  ]
+}

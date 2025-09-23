@@ -1,0 +1,401 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (e.g., v1.0.0)'
+        required: true
+        type: string
+
+env:
+  GO_VERSION: '1.24'
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+
+jobs:
+  validate:
+    name: Validate Release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: Extract version
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          TAG=${{ github.event.inputs.tag }}
+        else
+          TAG=${GITHUB_REF#refs/tags/}
+        fi
+        VERSION=${TAG#v}
+        echo "tag=${TAG}" >> $GITHUB_OUTPUT
+        echo "version=${VERSION}" >> $GITHUB_OUTPUT
+        echo "Releasing version: ${VERSION} (tag: ${TAG})"
+
+    - name: Cache Go modules
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-${{ hashFiles('**/go.sum') }}
+
+    - name: Install dependencies
+      run: go mod download
+
+    - name: Run full test suite
+      run: make ci
+
+    - name: Build all platforms
+      run: make build-all
+
+  build-binaries:
+    name: Build Release Binaries
+    runs-on: ubuntu-latest
+    needs: validate
+
+    strategy:
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+            name: linux-amd64
+          - goos: linux
+            goarch: arm64
+            name: linux-arm64
+          - goos: darwin
+            goarch: amd64
+            name: darwin-amd64
+          - goos: darwin
+            goarch: arm64
+            name: darwin-arm64
+          - goos: windows
+            goarch: amd64
+            name: windows-amd64
+          - goos: freebsd
+            goarch: amd64
+            name: freebsd-amd64
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: Cache Go modules
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-${{ hashFiles('**/go.sum') }}
+
+    - name: Install dependencies
+      run: go mod download
+
+    - name: Build binary
+      env:
+        GOOS: ${{ matrix.goos }}
+        GOARCH: ${{ matrix.goarch }}
+        CGO_ENABLED: 0
+        VERSION: ${{ needs.validate.outputs.version }}
+        COMMIT_SHA: ${{ github.sha }}
+        BUILD_DATE: ${{ github.run_started_at }}
+      run: |
+        mkdir -p dist
+        BINARY_NAME="gibson-${{ matrix.name }}"
+        if [ "${{ matrix.goos }}" = "windows" ]; then
+          BINARY_NAME="${BINARY_NAME}.exe"
+        fi
+
+        LDFLAGS="-s -w -X main.version=${VERSION} -X main.commit=${COMMIT_SHA} -X main.buildDate=${BUILD_DATE}"
+        go build -ldflags="${LDFLAGS}" -o dist/${BINARY_NAME} ./main.go
+
+        # Create archive
+        cd dist
+        if [ "${{ matrix.goos }}" = "windows" ]; then
+          zip gibson-${{ matrix.name }}.zip ${BINARY_NAME}
+          echo "ARCHIVE=gibson-${{ matrix.name }}.zip" >> $GITHUB_ENV
+        else
+          tar -czf gibson-${{ matrix.name }}.tar.gz ${BINARY_NAME}
+          echo "ARCHIVE=gibson-${{ matrix.name }}.tar.gz" >> $GITHUB_ENV
+        fi
+
+    - name: Generate checksums
+      run: |
+        cd dist
+        if [ "${{ matrix.goos }}" = "windows" ]; then
+          sha256sum gibson-${{ matrix.name }}.zip > gibson-${{ matrix.name }}.zip.sha256
+        else
+          sha256sum gibson-${{ matrix.name }}.tar.gz > gibson-${{ matrix.name }}.tar.gz.sha256
+        fi
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: gibson-${{ matrix.name }}
+        path: |
+          dist/gibson-${{ matrix.name }}*
+        retention-days: 1
+
+  build-packages:
+    name: Build Distribution Packages
+    runs-on: ubuntu-latest
+    needs: validate
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: Install packaging tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y rpm debhelper devscripts
+
+    - name: Cache Go modules
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-${{ hashFiles('**/go.sum') }}
+
+    - name: Install dependencies
+      run: go mod download
+
+    - name: Build Linux AMD64 binary
+      env:
+        GOOS: linux
+        GOARCH: amd64
+        CGO_ENABLED: 0
+        VERSION: ${{ needs.validate.outputs.version }}
+        COMMIT_SHA: ${{ github.sha }}
+        BUILD_DATE: ${{ github.run_started_at }}
+      run: |
+        mkdir -p build/linux-amd64
+        LDFLAGS="-s -w -X main.version=${VERSION} -X main.commit=${COMMIT_SHA} -X main.buildDate=${BUILD_DATE}"
+        go build -ldflags="${LDFLAGS}" -o build/linux-amd64/gibson ./main.go
+
+    - name: Create DEB package
+      env:
+        VERSION: ${{ needs.validate.outputs.version }}
+      run: |
+        make deb VERSION=${VERSION}
+
+    - name: Create RPM package
+      env:
+        VERSION: ${{ needs.validate.outputs.version }}
+      run: |
+        make rpm VERSION=${VERSION}
+
+    - name: Upload package artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: gibson-packages
+        path: |
+          dist/*.deb
+          dist/*.rpm
+        retention-days: 1
+
+  build-docker:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: validate
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=tag
+          type=raw,value=latest,enable={{is_default_branch}}
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile.production
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        build-args: |
+          VERSION=${{ needs.validate.outputs.version }}
+          COMMIT_SHA=${{ github.sha }}
+          BUILD_DATE=${{ github.run_started_at }}
+
+  generate-changelog:
+    name: Generate Changelog
+    runs-on: ubuntu-latest
+    needs: validate
+    outputs:
+      changelog: ${{ steps.changelog.outputs.changelog }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Generate changelog
+      id: changelog
+      run: |
+        # Get the previous tag
+        PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+        CURRENT_TAG=${{ needs.validate.outputs.tag }}
+
+        echo "Generating changelog from ${PREV_TAG} to ${CURRENT_TAG}"
+
+        # Generate changelog content
+        {
+          echo "## What's Changed"
+          echo ""
+
+          if [ -n "${PREV_TAG}" ]; then
+            git log --pretty=format:"* %s (%h)" ${PREV_TAG}..HEAD | grep -v "^* Merge"
+          else
+            git log --pretty=format:"* %s (%h)" | grep -v "^* Merge"
+          fi
+
+          echo ""
+          echo "## Full Changelog"
+          if [ -n "${PREV_TAG}" ]; then
+            echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREV_TAG}...${CURRENT_TAG}"
+          else
+            echo "**Full Changelog**: https://github.com/${{ github.repository }}/commits/${CURRENT_TAG}"
+          fi
+        } > changelog.md
+
+        # Set output for later use
+        {
+          echo 'changelog<<EOF'
+          cat changelog.md
+          echo EOF
+        } >> $GITHUB_OUTPUT
+
+    - name: Upload changelog
+      uses: actions/upload-artifact@v4
+      with:
+        name: changelog
+        path: changelog.md
+        retention-days: 1
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [validate, build-binaries, build-packages, build-docker, generate-changelog]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+
+    - name: Prepare release assets
+      run: |
+        mkdir -p release-assets
+
+        # Copy binary archives and checksums
+        find artifacts -name "gibson-*.tar.gz" -o -name "gibson-*.zip" -o -name "*.sha256" | \
+          xargs -I {} cp {} release-assets/
+
+        # Copy packages
+        find artifacts -name "*.deb" -o -name "*.rpm" | \
+          xargs -I {} cp {} release-assets/
+
+        # List all assets
+        echo "Release assets:"
+        ls -la release-assets/
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ needs.validate.outputs.tag }}
+        name: Release ${{ needs.validate.outputs.tag }}
+        body: ${{ needs.generate-changelog.outputs.changelog }}
+        draft: false
+        prerelease: ${{ contains(needs.validate.outputs.tag, '-') }}
+        files: release-assets/*
+        generate_release_notes: true
+        make_latest: true
+
+    - name: Update Homebrew formula
+      if: ${{ !contains(needs.validate.outputs.tag, '-') }}
+      run: |
+        echo "Homebrew formula update would be triggered here"
+        # This would typically trigger a separate workflow or webhook
+        # to update the Homebrew formula in a separate repository
+
+  notify:
+    name: Notify Release
+    runs-on: ubuntu-latest
+    needs: [validate, create-release]
+    if: always()
+
+    steps:
+    - name: Release Success Notification
+      if: ${{ needs.create-release.result == 'success' }}
+      run: |
+        echo "✅ Release ${{ needs.validate.outputs.tag }} created successfully!"
+        echo "Docker images pushed to ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+        echo "GitHub release: https://github.com/${{ github.repository }}/releases/tag/${{ needs.validate.outputs.tag }}"
+
+    - name: Release Failure Notification
+      if: ${{ needs.create-release.result == 'failure' }}
+      run: |
+        echo "❌ Release ${{ needs.validate.outputs.tag }} failed!"
+        echo "Please check the workflow logs for details."
+        exit 1

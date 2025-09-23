@@ -1,0 +1,27 @@
+{
+  "id": "approval_1758294161159_5o4bnyvy4",
+  "title": "Gibson SDK Extraction - Design Document (Revised)",
+  "filePath": ".spec-workflow/specs/gibson-sdk-extraction/design.md",
+  "type": "document",
+  "status": "needs-revision",
+  "createdAt": "2025-09-19T15:02:41.159Z",
+  "category": "spec",
+  "categoryName": "gibson-sdk-extraction",
+  "response": "Feedback Summary (1 comments):\n\nSpecific Text Comments:\n1. \"github.com/gibson-sec/gibson-framework-2/plugin-sd...\": should be github.com/gibson-sec/gibson-framework/plugin-sdk`\n",
+  "annotations": "{\n  \"decision\": \"needs-revision\",\n  \"comments\": [\n    {\n      \"type\": \"selection\",\n      \"comment\": \"should be github.com/gibson-sec/gibson-framework/plugin-sdk`\",\n      \"timestamp\": \"2025-09-19T15:09:01.967Z\",\n      \"selectedText\": \"github.com/gibson-sec/gibson-framework-2/plugin-sdk`\",\n      \"highlightColor\": {\n        \"bg\": \"rgba(255, 235, 59, 0.3)\",\n        \"border\": \"#FFEB3B\",\n        \"name\": \"#ffeb3b\"\n      },\n      \"id\": \"comment_1758294541967_fd6zfdkjs\"\n    }\n  ],\n  \"summary\": \"Feedback Summary (1 comments):\\n\\nSpecific Text Comments:\\n1. \\\"github.com/gibson-sec/gibson-framework-2/plugin-sd...\\\": should be github.com/gibson-sec/gibson-framework/plugin-sdk`\\n\",\n  \"timestamp\": \"2025-09-19T15:09:10.571Z\"\n}",
+  "respondedAt": "2025-09-19T15:09:10.574Z",
+  "comments": [
+    {
+      "type": "selection",
+      "comment": "should be github.com/gibson-sec/gibson-framework/plugin-sdk`",
+      "timestamp": "2025-09-19T15:09:01.967Z",
+      "selectedText": "github.com/gibson-sec/gibson-framework-2/plugin-sdk`",
+      "highlightColor": {
+        "bg": "rgba(255, 235, 59, 0.3)",
+        "border": "#FFEB3B",
+        "name": "#ffeb3b"
+      },
+      "id": "comment_1758294541967_fd6zfdkjs"
+    }
+  ]
+}

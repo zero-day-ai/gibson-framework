@@ -1,0 +1,45 @@
+{
+  "id": "approval_1758132579834_w962hwbhz",
+  "title": "Gibson Graph Plugin - Requirements Document",
+  "filePath": ".spec-workflow/specs/gibson-graph-plugin/requirements.md",
+  "type": "document",
+  "status": "needs-revision",
+  "createdAt": "2025-09-17T18:09:39.834Z",
+  "category": "spec",
+  "categoryName": "gibson-graph-plugin",
+  "response": "Feedback Summary (3 comments):\n\nGeneral Comments:\n1. this should be called knowledge-graph plugin, and be live n ~/Code/ai/zero-day-ai/plugins\n\nSpecific Text Comments:\n1. \"#### Acceptance Criteria\n\n1. WHEN a scan starts wi...\": How is the graph plugin going to grab the data from a \"normal scan\"?\n2. \"1. WHEN Davinci service is unreachable THEN the sc...\": The scan shouldnt exit; there should just be an error that the plugin cant send the scan data to davinci\n",
+  "annotations": "{\n  \"decision\": \"needs-revision\",\n  \"comments\": [\n    {\n      \"type\": \"selection\",\n      \"comment\": \"How is the graph plugin going to grab the data from a \\\"normal scan\\\"?\",\n      \"timestamp\": \"2025-09-17T18:16:58.200Z\",\n      \"selectedText\": \"#### Acceptance Criteria\\n\\n1. WHEN a scan starts with --graph flag THEN the plugin SHALL establish connection to configured Davinci service\\n2. WHEN a plugin generates conversation data THEN it SHALL immediately stream to Davinci within 100ms\\n3. WHEN multiple conversations occur THEN they SHALL be transmitted concurrently without blocking\\n4. WHEN network latency is high THEN transmission SHALL use buffering to maintain performance\",\n      \"highlightColor\": {\n        \"bg\": \"rgba(255, 235, 59, 0.3)\",\n        \"border\": \"#FFEB3B\",\n        \"name\": \"#ffeb3b\"\n      },\n      \"id\": \"comment_1758133018200_7ffumzhev\"\n    },\n    {\n      \"type\": \"selection\",\n      \"comment\": \"The scan shouldnt exit; there should just be an error that the plugin cant send the scan data to davinci\",\n      \"timestamp\": \"2025-09-17T18:17:42.337Z\",\n      \"selectedText\": \"1. WHEN Davinci service is unreachable THEN the scan SHALL exit with clear error message\",\n      \"highlightColor\": {\n        \"bg\": \"rgba(255, 235, 59, 0.3)\",\n        \"border\": \"#FFEB3B\",\n        \"name\": \"#ffeb3b\"\n      },\n      \"id\": \"comment_1758133062337_4ydw9czdu\"\n    },\n    {\n      \"type\": \"general\",\n      \"comment\": \"this should be called knowledge-graph plugin, and be live n ~/Code/ai/zero-day-ai/plugins\",\n      \"timestamp\": \"2025-09-17T18:19:29.879Z\",\n      \"id\": \"comment_1758133169879_ordyp4w99\"\n    }\n  ],\n  \"summary\": \"Feedback Summary (3 comments):\\n\\nGeneral Comments:\\n1. this should be called knowledge-graph plugin, and be live n ~/Code/ai/zero-day-ai/plugins\\n\\nSpecific Text Comments:\\n1. \\\"#### Acceptance Criteria\\n\\n1. WHEN a scan starts wi...\\\": How is the graph plugin going to grab the data from a \\\"normal scan\\\"?\\n2. \\\"1. WHEN Davinci service is unreachable THEN the sc...\\\": The scan shouldnt exit; there should just be an error that the plugin cant send the scan data to davinci\\n\",\n  \"timestamp\": \"2025-09-17T18:19:31.102Z\"\n}",
+  "respondedAt": "2025-09-17T18:19:31.105Z",
+  "comments": [
+    {
+      "type": "selection",
+      "comment": "How is the graph plugin going to grab the data from a \"normal scan\"?",
+      "timestamp": "2025-09-17T18:16:58.200Z",
+      "selectedText": "#### Acceptance Criteria\n\n1. WHEN a scan starts with --graph flag THEN the plugin SHALL establish connection to configured Davinci service\n2. WHEN a plugin generates conversation data THEN it SHALL immediately stream to Davinci within 100ms\n3. WHEN multiple conversations occur THEN they SHALL be transmitted concurrently without blocking\n4. WHEN network latency is high THEN transmission SHALL use buffering to maintain performance",
+      "highlightColor": {
+        "bg": "rgba(255, 235, 59, 0.3)",
+        "border": "#FFEB3B",
+        "name": "#ffeb3b"
+      },
+      "id": "comment_1758133018200_7ffumzhev"
+    },
+    {
+      "type": "selection",
+      "comment": "The scan shouldnt exit; there should just be an error that the plugin cant send the scan data to davinci",
+      "timestamp": "2025-09-17T18:17:42.337Z",
+      "selectedText": "1. WHEN Davinci service is unreachable THEN the scan SHALL exit with clear error message",
+      "highlightColor": {
+        "bg": "rgba(255, 235, 59, 0.3)",
+        "border": "#FFEB3B",
+        "name": "#ffeb3b"
+      },
+      "id": "comment_1758133062337_4ydw9czdu"
+    },
+    {
+      "type": "general",
+      "comment": "this should be called knowledge-graph plugin, and be live n ~/Code/ai/zero-day-ai/plugins",
+      "timestamp": "2025-09-17T18:19:29.879Z",
+      "id": "comment_1758133169879_ordyp4w99"
+    }
+  ]
+}

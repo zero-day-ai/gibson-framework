@@ -1,0 +1,185 @@
+{
+  "$id": "https://schemas.gibson-sec.com/payload/2.0.0",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "description": "Security testing payload with repository tracking",
+  "properties": {
+    "category": {
+      "description": "Category classification of the payload",
+      "enum": [
+        "model",
+        "data",
+        "interface",
+        "infrastructure",
+        "output",
+        "process"
+      ],
+      "type": "string"
+    },
+    "config": {
+      "additionalProperties": {
+        "description": "Any JSON value",
+        "type": [
+          "null",
+          "boolean",
+          "object",
+          "array",
+          "number",
+          "string"
+        ]
+      },
+      "description": "Configuration options for the payload",
+      "type": "object"
+    },
+    "content": {
+      "description": "The actual payload content",
+      "type": "string"
+    },
+    "created_at": {
+      "description": "Timestamp when the payload was created",
+      "format": "date-time",
+      "type": "string"
+    },
+    "created_by": {
+      "description": "User who created the payload",
+      "type": "string"
+    },
+    "description": {
+      "description": "Detailed description of the payload",
+      "type": "string"
+    },
+    "domain": {
+      "description": "Plugin domain this payload belongs to",
+      "type": "string"
+    },
+    "enabled": {
+      "description": "Whether the payload is enabled for use",
+      "type": "boolean"
+    },
+    "id": {
+      "description": "Unique identifier for the payload",
+      "format": "uuid",
+      "type": "string"
+    },
+    "language": {
+      "description": "Programming language if applicable",
+      "type": "string"
+    },
+    "last_used": {
+      "description": "Timestamp when the payload was last used",
+      "format": "date-time",
+      "nullable": true,
+      "type": "string"
+    },
+    "name": {
+      "description": "Human-readable name of the payload",
+      "maxLength": 255,
+      "minLength": 1,
+      "type": "string"
+    },
+    "parent_id": {
+      "description": "ID of the parent payload if this is a variant",
+      "format": "uuid",
+      "nullable": true,
+      "type": "string"
+    },
+    "plugin_name": {
+      "description": "Name of the plugin that uses this payload",
+      "type": "string"
+    },
+    "repository_id": {
+      "description": "ID of the repository containing this payload",
+      "format": "uuid",
+      "nullable": true,
+      "type": "string"
+    },
+    "repository_path": {
+      "description": "Path within the repository",
+      "type": "string"
+    },
+    "severity": {
+      "description": "Severity level of the security test",
+      "type": "string"
+    },
+    "success_rate": {
+      "description": "Success rate of the payload (0.0-1.0)",
+      "type": "number"
+    },
+    "tags": {
+      "description": "List of tags for categorization",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "type": {
+      "description": "Type of payload (prompt, query, input, etc.)",
+      "enum": [
+        "prompt",
+        "query",
+        "input",
+        "code",
+        "data",
+        "script"
+      ],
+      "type": "string"
+    },
+    "updated_at": {
+      "description": "Timestamp when the payload was last updated",
+      "format": "date-time",
+      "type": "string"
+    },
+    "usage_count": {
+      "description": "Number of times the payload has been used",
+      "type": "integer"
+    },
+    "validated": {
+      "description": "Whether the payload has been validated",
+      "type": "boolean"
+    },
+    "validation_result": {
+      "additionalProperties": {
+        "description": "Any JSON value",
+        "type": [
+          "null",
+          "boolean",
+          "object",
+          "array",
+          "number",
+          "string"
+        ]
+      },
+      "description": "Results of payload validation",
+      "type": "object"
+    },
+    "variables": {
+      "additionalProperties": {
+        "description": "Any JSON value",
+        "type": [
+          "null",
+          "boolean",
+          "object",
+          "array",
+          "number",
+          "string"
+        ]
+      },
+      "description": "Variable substitutions for the payload",
+      "type": "object"
+    },
+    "version": {
+      "description": "Version number of the payload",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "name",
+    "category",
+    "domain",
+    "type",
+    "content"
+  ],
+  "title": "PayloadDB",
+  "type": "object",
+  "version": "2.0.0"
+}

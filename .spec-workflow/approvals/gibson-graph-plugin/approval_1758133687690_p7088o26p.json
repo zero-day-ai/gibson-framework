@@ -1,0 +1,39 @@
+{
+  "id": "approval_1758133687690_p7088o26p",
+  "title": "Knowledge Graph Plugin - Updated Requirements Document",
+  "filePath": ".spec-workflow/specs/gibson-graph-plugin/requirements.md",
+  "type": "document",
+  "status": "needs-revision",
+  "createdAt": "2025-09-17T18:28:07.690Z",
+  "category": "spec",
+  "categoryName": "gibson-graph-plugin",
+  "response": "Feedback Summary (2 comments):\n\nSpecific Text Comments:\n1. \"#### Acceptance Criteria\n\n1. WHEN a scan starts wi...\": Detail out how the scan and the plugin interface works, if a user doesnt speficy ---verbose, where is it going to get the data?\n2. \"1. WHEN Gibson loads configuration THEN the plugin...\": Or the command line via --knowledge-graph-url\n",
+  "annotations": "{\n  \"decision\": \"needs-revision\",\n  \"comments\": [\n    {\n      \"type\": \"selection\",\n      \"comment\": \"Detail out how the scan and the plugin interface works, if a user doesnt speficy ---verbose, where is it going to get the data?\",\n      \"timestamp\": \"2025-09-17T18:31:23.502Z\",\n      \"selectedText\": \"#### Acceptance Criteria\\n\\n1. WHEN a scan starts with --graph flag THEN the plugin SHALL establish connection to configured Davinci service\\n2. WHEN Gibson's scan engine executes plugins THEN the knowledge-graph plugin SHALL intercept and capture the conversation data (prompts, responses, metadata) from the plugin execution context\\n3. WHEN a plugin generates conversation data THEN the knowledge-graph plugin SHALL immediately stream captured data to Davinci within 100ms\\n4. WHEN multiple conversations occur THEN they SHALL be transmitted concurrently without blocking\\n5. WHEN network latency is high THEN transmission SHALL use buffering to maintain performance\",\n      \"highlightColor\": {\n        \"bg\": \"rgba(255, 235, 59, 0.3)\",\n        \"border\": \"#FFEB3B\",\n        \"name\": \"#ffeb3b\"\n      },\n      \"id\": \"comment_1758133883502_yhz1scq5h\"\n    },\n    {\n      \"type\": \"selection\",\n      \"comment\": \"Or the command line via --knowledge-graph-url\",\n      \"timestamp\": \"2025-09-17T18:31:50.062Z\",\n      \"selectedText\": \"1. WHEN Gibson loads configuration THEN the plugin SHALL read Davinci service URL from config\",\n      \"highlightColor\": {\n        \"bg\": \"rgba(255, 235, 59, 0.3)\",\n        \"border\": \"#FFEB3B\",\n        \"name\": \"#ffeb3b\"\n      },\n      \"id\": \"comment_1758133910062_yb47kt6xm\"\n    }\n  ],\n  \"summary\": \"Feedback Summary (2 comments):\\n\\nSpecific Text Comments:\\n1. \\\"#### Acceptance Criteria\\n\\n1. WHEN a scan starts wi...\\\": Detail out how the scan and the plugin interface works, if a user doesnt speficy ---verbose, where is it going to get the data?\\n2. \\\"1. WHEN Gibson loads configuration THEN the plugin...\\\": Or the command line via --knowledge-graph-url\\n\",\n  \"timestamp\": \"2025-09-17T18:32:17.649Z\"\n}",
+  "respondedAt": "2025-09-17T18:32:17.655Z",
+  "comments": [
+    {
+      "type": "selection",
+      "comment": "Detail out how the scan and the plugin interface works, if a user doesnt speficy ---verbose, where is it going to get the data?",
+      "timestamp": "2025-09-17T18:31:23.502Z",
+      "selectedText": "#### Acceptance Criteria\n\n1. WHEN a scan starts with --graph flag THEN the plugin SHALL establish connection to configured Davinci service\n2. WHEN Gibson's scan engine executes plugins THEN the knowledge-graph plugin SHALL intercept and capture the conversation data (prompts, responses, metadata) from the plugin execution context\n3. WHEN a plugin generates conversation data THEN the knowledge-graph plugin SHALL immediately stream captured data to Davinci within 100ms\n4. WHEN multiple conversations occur THEN they SHALL be transmitted concurrently without blocking\n5. WHEN network latency is high THEN transmission SHALL use buffering to maintain performance",
+      "highlightColor": {
+        "bg": "rgba(255, 235, 59, 0.3)",
+        "border": "#FFEB3B",
+        "name": "#ffeb3b"
+      },
+      "id": "comment_1758133883502_yhz1scq5h"
+    },
+    {
+      "type": "selection",
+      "comment": "Or the command line via --knowledge-graph-url",
+      "timestamp": "2025-09-17T18:31:50.062Z",
+      "selectedText": "1. WHEN Gibson loads configuration THEN the plugin SHALL read Davinci service URL from config",
+      "highlightColor": {
+        "bg": "rgba(255, 235, 59, 0.3)",
+        "border": "#FFEB3B",
+        "name": "#ffeb3b"
+      },
+      "id": "comment_1758133910062_yb47kt6xm"
+    }
+  ]
+}

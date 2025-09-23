@@ -1,0 +1,21 @@
+{
+  "id": "approval_1758110205189_wv0ydc98x",
+  "title": "Auto Provider URLs - Design Document",
+  "filePath": ".spec-workflow/specs/auto-provider-urls/design.md",
+  "type": "document",
+  "status": "needs-revision",
+  "createdAt": "2025-09-17T11:56:45.189Z",
+  "category": "spec",
+  "categoryName": "auto-provider-urls",
+  "response": "Feedback Summary (1 comments):\n\nGeneral Comments:\n1. use langchaingo you moron\n\n",
+  "annotations": "{\n  \"decision\": \"needs-revision\",\n  \"comments\": [\n    {\n      \"type\": \"general\",\n      \"comment\": \"use langchaingo you moron\",\n      \"timestamp\": \"2025-09-17T12:03:17.349Z\",\n      \"id\": \"comment_1758110597349_0mzojciqm\"\n    }\n  ],\n  \"summary\": \"Feedback Summary (1 comments):\\n\\nGeneral Comments:\\n1. use langchaingo you moron\\n\\n\",\n  \"timestamp\": \"2025-09-17T12:03:18.548Z\"\n}",
+  "respondedAt": "2025-09-17T12:03:18.550Z",
+  "comments": [
+    {
+      "type": "general",
+      "comment": "use langchaingo you moron",
+      "timestamp": "2025-09-17T12:03:17.349Z",
+      "id": "comment_1758110597349_0mzojciqm"
+    }
+  ]
+}
