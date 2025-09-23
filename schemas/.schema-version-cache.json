@@ -1,0 +1,33 @@
+{
+  "current_version": "1.0.0",
+  "model_hash": "222d281bd31acdb69cf8c0f09a0be9faaaba7b1e738ba338a14f0af01b3eaed0",
+  "field_hashes": {
+    "Category": "ffda2c0b429d25e77a70a93d72a642c8b8798db480f65986c8b592fb7334f6b6",
+    "Config": "52502d6851cebce1ac3071d112eea9572035aa5c1c206d17de92116194a8f974",
+    "Content": "0a0a9170bde1f6b4ca55e9817c8b0bb56087a8887e45ae90456c47ac0e5a5317",
+    "CreatedAt": "4fcef61c74e3b2185b5b44620a024b2f4a58856a67e2f216aa83af3402d48e1f",
+    "CreatedBy": "57310b8e1da5b17e60e4bc5cebadbf838f74b6030ee7d51c4486f28f16b6d75e",
+    "Description": "e5ae5ee6f958f93c548b841cc0900cf22cf32a40290e5b9d723b2de5345289f0",
+    "Domain": "c1794b7abbfe9e433bbc5565d997ff79e7144c24f841a5a9d96dedf375c77ee0",
+    "Enabled": "4e1257840241915a06b674efae2c3ec6946c90e467f1cdb82cb89f760554561e",
+    "ID": "2a745d862f19ceeafed76a8dea3508c1bb70c61a7410840b156cd6c6103ba70d",
+    "Language": "7c4caf2754c8126aaf462cfbb6b0b8cb9381306e51408444540d34d75a09446d",
+    "LastUsed": "56a0f927b6848d9b618ca24da5a2df7439adb1798626cef7e6b64acaa31249dd",
+    "Name": "e870be1105c4e4c1dbd0fc17394188c06b23a68be706ae91bf6f389640f8b3a8",
+    "ParentID": "41078c2d67352945fcb626a4701b1ea57590c18a0d90b8aed5da934c8e2c22f6",
+    "PluginName": "baacf42b489367fe3f488f0bb8b857b32e680dd69c650ed38d8696fd0aca50af",
+    "RepositoryID": "13bb194acebe36cf6d2fab9e197de742b24382b624d626f449de57e99867d209",
+    "RepositoryPath": "58a0c64c17ad6940ec0cb1d10d6291e1799e0220f9b9e25f93b7d271d411bfb7",
+    "Severity": "721aae3d5723fde85dc618d7847a12e20a28b82538b28b1c9fd9f3e32bc2f91a",
+    "SuccessRate": "9f0e3cd2cee403293fae637db687bcfa78b2ab71025580a26e54f0952886ad11",
+    "Tags": "d304717f82165fcdaab703f5a54aa529bbfd6ab5cdb374288f70ae64c8ace0b9",
+    "Type": "4ddc890f50e7926e2ffb769e1ebc9aad23413e2d8e8dbb55f0454e4931c89e75",
+    "UpdatedAt": "286b1aa0cbbf741a980e865f209e81b8fa847a2aed1e07aee56b450e205c60f5",
+    "UsageCount": "be92784b6d91c18d6a0ff75a8917b4552414a208e3834c4781bb5b632f68bb2c",
+    "Validated": "ca0355325e6c3d5fa78aef0ae78292c2ffd0f2bd6c6648ead187f5f372f14e00",
+    "ValidationResult": "e477aece8975c3ecaebbe75999e5d1c26387176e551a989a3a5e4ec229148272",
+    "Variables": "58bcc25ce2935d1c7b18bf3e1a54313dff05c7975b97bf8db12f001df1f6e57f",
+    "Version": "997f4d05b52a969013f8f882db0be87a4bbe1e7467268a2360767d89d7fae22b"
+  },
+  "change_history": []
+}

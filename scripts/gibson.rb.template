@@ -1,0 +1,80 @@
+class Gibson < Formula
+  desc "AI/ML Security Testing Framework"
+  homepage "https://github.com/gibson-sec/gibson-framework-2"
+  url "https://github.com/gibson-sec/gibson-framework-2/releases/download/v{{VERSION}}/gibson-darwin-amd64.tar.gz"
+  sha256 "{{DARWIN_AMD64_SHA}}"
+  license "MIT"
+  version "{{VERSION}}"
+
+  depends_on "go" => :build
+
+  on_arm do
+    url "https://github.com/gibson-sec/gibson-framework-2/releases/download/v{{VERSION}}/gibson-darwin-arm64.tar.gz"
+    sha256 "{{DARWIN_ARM64_SHA}}"
+  end
+
+  def install
+    bin.install "gibson-darwin-amd64" => "gibson" if Hardware::CPU.intel?
+    bin.install "gibson-darwin-arm64" => "gibson" if Hardware::CPU.arm?
+
+    # Install shell completions
+    generate_completions_from_executable(bin/"gibson", "completion")
+
+    # Create configuration directory
+    (etc/"gibson").mkpath
+
+    # Install default configuration
+    (etc/"gibson/config.yaml").write <<~EOS
+      # Gibson Framework Configuration
+      # See https://github.com/gibson-sec/gibson-framework-2 for documentation
+
+      # Server configuration
+      server:
+        host: "0.0.0.0"
+        port: 8080
+
+      # Database configuration
+      database:
+        path: "#{var}/gibson/gibson.db"
+
+      # Logging configuration
+      logging:
+        level: "info"
+        file: "#{var}/log/gibson/gibson.log"
+        max_size: 100 # MB
+        max_backups: 5
+        max_age: 30 # days
+
+      # Plugin configuration
+      plugins:
+        directory: "#{var}/gibson/plugins"
+        timeout: 300 # seconds
+
+      # Security configuration
+      security:
+        api_key_required: true
+        rate_limit: 100 # requests per minute
+    EOS
+
+    # Create data and log directories
+    (var/"gibson").mkpath
+    (var/"log/gibson").mkpath
+  end
+
+  service do
+    run [opt_bin/"gibson", "serve", "--config", etc/"gibson/config.yaml"]
+    keep_alive true
+    log_path var/"log/gibson/gibson.log"
+    error_log_path var/"log/gibson/gibson.log"
+    working_dir var/"gibson"
+  end
+
+  test do
+    # Test basic functionality
+    system "#{bin}/gibson", "--version"
+    system "#{bin}/gibson", "--help"
+
+    # Test configuration validation
+    system "#{bin}/gibson", "validate", "--config", "#{etc}/gibson/config.yaml"
+  end
+end

@@ -1,0 +1,274 @@
+# golangci-lint configuration for Gibson Framework
+# Following k9s patterns for comprehensive linting
+
+run:
+  timeout: 5m
+  issues-exit-code: 1
+  tests: true
+  modules-download-mode: readonly
+
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+  uniq-by-line: true
+  path-prefix: ""
+  sort-results: true
+
+linters-settings:
+  # Error checking
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+    exclude-functions:
+      - (*github.com/spf13/cobra.Command).Execute
+      - (*database/sql.DB).Close
+      - (*github.com/jmoiron/sqlx.DB).Close
+
+  # Gofmt checks
+  gofmt:
+    simplify: true
+    rewrite-rules:
+      - pattern: 'interface{}'
+        replacement: 'any'
+
+  goimports:
+    local-prefixes: github.com/gibson-sec/gibson-framework-2
+
+  # Go vet
+  govet:
+    enable-all: true
+    disable:
+      - fieldalignment # Can be too strict for readability
+    settings:
+      shadow:
+        strict: false
+
+  # Code complexity
+  gocyclo:
+    min-complexity: 15
+
+  cyclop:
+    max-complexity: 15
+    package-average: 10.0
+
+  # Function length
+  funlen:
+    lines: 80
+    statements: 50
+
+  # Line length
+  lll:
+    line-length: 120
+    tab-width: 4
+
+  # Unused code
+  unused:
+    check-exported: true
+    exported-is-used: true
+
+  # Variable naming
+  varnamelen:
+    min-name-length: 2
+    ignore-names:
+      - err
+      - ok
+      - db
+      - id
+      - tx
+      - mu
+      - wg
+    ignore-decls:
+      - t testing.T
+      - e error
+      - i int
+      - k string
+      - v interface{}
+
+  # Struct tags
+  tagliatelle:
+    case:
+      rules:
+        json: snake
+        yaml: snake
+        xml: snake
+        bson: snake
+        avro: snake
+
+  # Spelling
+  misspell:
+    locale: US
+    ignore-words:
+      - gibson
+      - kubernetes
+      - plugin
+
+  # Security
+  gosec:
+    includes:
+      - G101 # Look for hard coded credentials
+      - G102 # Bind to all interfaces
+      - G103 # Audit the use of unsafe block
+      - G104 # Audit errors not checked
+      - G106 # Audit the use of ssh.InsecureIgnoreHostKey
+      - G107 # Url provided to HTTP request as taint input
+      - G108 # Profiling endpoint automatically exposed on /debug/pprof
+      - G109 # Potential Integer overflow made by strconv.Atoi result conversion to int16/32
+      - G110 # Potential DoS vulnerability via decompression bomb
+      - G201 # SQL query construction using format string
+      - G202 # SQL query construction using string concatenation
+      - G203 # Use of unescaped data in HTML templates
+      - G204 # Audit use of command execution
+      - G301 # Poor file permissions used when creating a directory
+      - G302 # Poor file permissions used with chmod
+      - G303 # Creating tempfile using a predictable path
+      - G304 # File path provided as taint input
+      - G305 # File traversal when extracting zip/tar archive
+      - G401 # Detect the usage of DES, RC4, MD5 or SHA1
+      - G402 # Look for bad TLS connection settings
+      - G403 # Ensure minimum RSA key length of 2048 bits
+      - G404 # Insecure random number source (rand)
+      - G501 # Import blocklist: crypto/md5
+      - G502 # Import blocklist: crypto/des
+      - G503 # Import blocklist: crypto/rc4
+      - G504 # Import blocklist: net/http/cgi
+      - G505 # Import blocklist: crypto/sha1
+      - G601 # Implicit memory aliasing of items from a range statement
+
+  # Imports
+  gci:
+    sections:
+      - standard # Standard packages
+      - default # Default packages
+      - prefix(github.com/gibson-sec/gibson-framework-2) # Local packages
+    skip-generated: true
+    custom-order: true
+
+linters:
+  enable:
+    # Default linters
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+
+    # Additional quality linters
+    - gofmt
+    - goimports
+    - gci
+    - misspell
+    - unconvert
+    - unparam
+    - gocyclo
+    - cyclop
+    - funlen
+    - lll
+    - varnamelen
+    - tagliatelle
+
+    # Error handling
+    - goerr113
+    - wrapcheck
+
+    # Performance
+    - prealloc
+    - bodyclose
+
+    # Style
+    - stylecheck
+    - revive
+
+    # Security
+    - gosec
+
+    # Bugs
+    - gocritic
+    - nilerr
+
+    # Complexity
+    - nestif
+    - nakedret
+
+  disable:
+    # Sometimes too strict
+    - exhaustivestruct
+    - exhaustruct
+    - forbidigo
+    - forcetypeassert
+    - godox
+    - goheader
+    - golint
+    - gomnd
+    - interfacer
+    - maligned
+    - scopelint
+    - wsl
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  new-from-rev: ""
+  fix: false
+
+  exclude-rules:
+    # Exclude some linters from running on tests files
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - errcheck
+        - dupl
+        - gosec
+        - funlen
+        - varnamelen
+        - lll
+
+    # Exclude some linters from running on test helpers
+    - path: internal/test/
+      linters:
+        - funlen
+        - gocyclo
+        - varnamelen
+
+    # Exclude some linters from running on generated files
+    - path: ".*\\.pb\\.go$"
+      linters:
+        - all
+
+    # Exclude some linters from running on vendor files
+    - path: vendor/
+      linters:
+        - all
+
+    # Exclude some linters from running on main.go
+    - path: main\.go
+      linters:
+        - funlen
+
+  exclude:
+    # Exclude some generic error messages
+    - "Error return value of .((os\\.)?std(out|err)\\..*|.*Close|.*Flush|os\\.Remove(All)?|.*print(f|ln)?|os\\.(Un)?Setenv). is not checked"
+    - "should have a package comment, unless it's in another file for this package"
+
+severity:
+  default-severity: error
+  case-sensitive: false
+
+  rules:
+    - linters:
+        - dupl
+        - funlen
+        - gocyclo
+        - cyclop
+        - lll
+        - varnamelen
+      severity: warning
+
+    - linters:
+        - errcheck
+        - gosec
+        - govet
+        - staticcheck
+      severity: error

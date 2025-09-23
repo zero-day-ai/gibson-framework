@@ -1,0 +1,566 @@
+package dao
+
+import (
+	"context"
+	"testing"
+	"time"
+
+	"github.com/gibson-sec/gibson-framework-2/internal/test"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+func TestReportDAO_Create(t *testing.T) {
+	testDB := test.NewTestDatabase(t)
+	defer testDB.Close()
+
+	// Create required tables
+	testDB.CreateTestTables(t)
+	require.NoError(t, CreateReportsTable(testDB.DB))
+
+	dao := NewSQLiteReportDAO(testDB.DB)
+
+	tests := []struct {
+		name    string
+		report  *Report
+		wantErr bool
+	}{
+		{
+			name: "valid report",
+			report: &Report{
+				ScanID:      "scan-001",
+				Title:       "Security Assessment Report",
+				Description: "Comprehensive security assessment",
+				Format:      "json",
+				Status:      "generating",
+				FilePath:    "/reports/scan-001.json",
+				Metadata:    `{"version": "1.0"}`,
+			},
+			wantErr: false,
+		},
+		{
+			name: "report with pre-set ID",
+			report: &Report{
+				ID:          "report-001",
+				ScanID:      "scan-002",
+				Title:       "Custom Report",
+				Description: "Custom report with pre-set ID",
+				Format:      "pdf",
+				Status:      "completed",
+				FilePath:    "/reports/custom.pdf",
+				Metadata:    `{"custom": true}`,
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ctx := context.Background()
+			err := dao.Create(ctx, tt.report)
+
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+
+			require.NoError(t, err)
+			assert.NotEmpty(t, tt.report.ID)
+			assert.NotZero(t, tt.report.CreatedAt)
+			assert.NotZero(t, tt.report.UpdatedAt)
+
+			// Verify the report was created
+			created, err := dao.GetByID(ctx, tt.report.ID)
+			require.NoError(t, err)
+			assert.NotNil(t, created)
+			assert.Equal(t, tt.report.ScanID, created.ScanID)
+			assert.Equal(t, tt.report.Title, created.Title)
+			assert.Equal(t, tt.report.Format, created.Format)
+			assert.Equal(t, tt.report.Status, created.Status)
+		})
+	}
+}
+
+func TestReportDAO_GetByID(t *testing.T) {
+	testDB := test.NewTestDatabase(t)
+	defer testDB.Close()
+
+	testDB.CreateTestTables(t)
+	require.NoError(t, CreateReportsTable(testDB.DB))
+
+	dao := NewSQLiteReportDAO(testDB.DB)
+	ctx := context.Background()
+
+	// Create a test report
+	report := &Report{
+		ID:          "test-report-001",
+		ScanID:      "scan-001",
+		Title:       "Test Report",
+		Description: "Test report description",
+		Format:      "json",
+		Status:      "completed",
+		FilePath:    "/reports/test.json",
+		Metadata:    `{"test": true}`,
+	}
+
+	err := dao.Create(ctx, report)
+	require.NoError(t, err)
+
+	tests := []struct {
+		name     string
+		id       string
+		wantNil  bool
+		wantErr  bool
+	}{
+		{
+			name:    "existing report",
+			id:      report.ID,
+			wantNil: false,
+			wantErr: false,
+		},
+		{
+			name:    "non-existent report",
+			id:      "non-existent",
+			wantNil: true,
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := dao.GetByID(ctx, tt.id)
+
+			if tt.wantErr {
+				assert.Error(t, err)
+				return
+			}
+
+			require.NoError(t, err)
+
+			if tt.wantNil {
+				assert.Nil(t, result)
+			} else {
+				assert.NotNil(t, result)
+				assert.Equal(t, tt.id, result.ID)
+			}
+		})
+	}
+}
+
+func TestReportDAO_GetByScanID(t *testing.T) {
+	testDB := test.NewTestDatabase(t)
+	defer testDB.Close()
+
+	testDB.CreateTestTables(t)
+	require.NoError(t, CreateReportsTable(testDB.DB))
+
+	dao := NewSQLiteReportDAO(testDB.DB)
+	ctx := context.Background()
+
+	scanID := "scan-001"
+
+	// Create multiple reports for the same scan
+	reports := []*Report{
+		{
+			ScanID:   scanID,
+			Title:    "Report 1",
+			Format:   "json",
+			Status:   "completed",
+			FilePath: "/reports/1.json",
+		},
+		{
+			ScanID:   scanID,
+			Title:    "Report 2",
+			Format:   "pdf",
+			Status:   "generating",
+			FilePath: "/reports/2.pdf",
+		},
+		{
+			ScanID:   "scan-002", // Different scan
+			Title:    "Report 3",
+			Format:   "html",
+			Status:   "completed",
+			FilePath: "/reports/3.html",
+		},
+	}
+
+	for _, report := range reports {
+		err := dao.Create(ctx, report)
+		require.NoError(t, err)
+	}
+
+	// Test getting reports by scan ID
+	results, err := dao.GetByScanID(ctx, scanID)
+	require.NoError(t, err)
+	assert.Len(t, results, 2) // Only 2 reports for scan-001
+
+	// Verify reports are sorted by created_at DESC
+	assert.True(t, results[0].CreatedAt.After(results[1].CreatedAt) || results[0].CreatedAt.Equal(results[1].CreatedAt))
+
+	// Test with non-existent scan ID
+	results, err = dao.GetByScanID(ctx, "non-existent")
+	require.NoError(t, err)
+	assert.Len(t, results, 0)
+}
+
+func TestReportDAO_Update(t *testing.T) {
+	testDB := test.NewTestDatabase(t)
+	defer testDB.Close()
+
+	testDB.CreateTestTables(t)
+	require.NoError(t, CreateReportsTable(testDB.DB))
+
+	dao := NewSQLiteReportDAO(testDB.DB)
+	ctx := context.Background()
+
+	// Create a report
+	report := &Report{
+		ScanID:      "scan-001",
+		Title:       "Original Title",
+		Description: "Original description",
+		Format:      "json",
+		Status:      "generating",
+		FilePath:    "/reports/original.json",
+		Metadata:    `{"version": "1.0"}`,
+	}
+
+	err := dao.Create(ctx, report)
+	require.NoError(t, err)
+
+	originalUpdatedAt := report.UpdatedAt
+
+	// Wait a bit to ensure timestamp difference
+	time.Sleep(10 * time.Millisecond)
+
+	// Update the report
+	now := time.Now()
+	report.Title = "Updated Title"
+	report.Description = "Updated description"
+	report.Status = "completed"
+	report.FilePath = "/reports/updated.json"
+	report.CompletedAt = &now
+	report.Metadata = `{"version": "2.0"}`
+
+	err = dao.Update(ctx, report)
+	require.NoError(t, err)
+
+	// Verify the update
+	updated, err := dao.GetByID(ctx, report.ID)
+	require.NoError(t, err)
+	assert.Equal(t, "Updated Title", updated.Title)
+	assert.Equal(t, "Updated description", updated.Description)
+	assert.Equal(t, "completed", updated.Status)
+	assert.Equal(t, "/reports/updated.json", updated.FilePath)
+	assert.NotNil(t, updated.CompletedAt)
+	assert.Equal(t, `{"version": "2.0"}`, updated.Metadata)
+	assert.True(t, updated.UpdatedAt.After(originalUpdatedAt))
+
+	// Test updating non-existent report
+	nonExistent := &Report{
+		ID:     "non-existent",
+		Title:  "Should fail",
+		ScanID: "scan-001",
+		Format: "json",
+		Status: "generating",
+	}
+
+	err = dao.Update(ctx, nonExistent)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "not found")
+}
+
+func TestReportDAO_Delete(t *testing.T) {
+	testDB := test.NewTestDatabase(t)
+	defer testDB.Close()
+
+	testDB.CreateTestTables(t)
+	require.NoError(t, CreateReportsTable(testDB.DB))
+
+	dao := NewSQLiteReportDAO(testDB.DB)
+	ctx := context.Background()
+
+	// Create a report
+	report := &Report{
+		ScanID:   "scan-001",
+		Title:    "Report to Delete",
+		Format:   "json",
+		Status:   "completed",
+		FilePath: "/reports/delete.json",
+	}
+
+	err := dao.Create(ctx, report)
+	require.NoError(t, err)
+
+	// Verify it exists
+	exists, err := dao.GetByID(ctx, report.ID)
+	require.NoError(t, err)
+	assert.NotNil(t, exists)
+
+	// Delete the report
+	err = dao.Delete(ctx, report.ID)
+	require.NoError(t, err)
+
+	// Verify it's gone
+	deleted, err := dao.GetByID(ctx, report.ID)
+	require.NoError(t, err)
+	assert.Nil(t, deleted)
+
+	// Test deleting non-existent report
+	err = dao.Delete(ctx, "non-existent")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "not found")
+}
+
+func TestReportDAO_List(t *testing.T) {
+	testDB := test.NewTestDatabase(t)
+	defer testDB.Close()
+
+	testDB.CreateTestTables(t)
+	require.NoError(t, CreateReportsTable(testDB.DB))
+
+	dao := NewSQLiteReportDAO(testDB.DB)
+	ctx := context.Background()
+
+	// Create multiple reports
+	for i := 0; i < 10; i++ {
+		report := &Report{
+			ScanID:   "scan-001",
+			Title:    fmt.Sprintf("Report %d", i),
+			Format:   "json",
+			Status:   "completed",
+			FilePath: fmt.Sprintf("/reports/%d.json", i),
+		}
+		err := dao.Create(ctx, report)
+		require.NoError(t, err)
+
+		// Add slight delay to ensure different timestamps
+		time.Sleep(1 * time.Millisecond)
+	}
+
+	tests := []struct {
+		name         string
+		limit        int
+		offset       int
+		expectedLen  int
+	}{
+		{
+			name:        "first page",
+			limit:       5,
+			offset:      0,
+			expectedLen: 5,
+		},
+		{
+			name:        "second page",
+			limit:       5,
+			offset:      5,
+			expectedLen: 5,
+		},
+		{
+			name:        "beyond available",
+			limit:       5,
+			offset:      15,
+			expectedLen: 0,
+		},
+		{
+			name:        "all reports",
+			limit:       20,
+			offset:      0,
+			expectedLen: 10,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			results, err := dao.List(ctx, tt.limit, tt.offset)
+			require.NoError(t, err)
+			assert.Len(t, results, tt.expectedLen)
+
+			// Verify ordering (newest first)
+			if len(results) > 1 {
+				for i := 0; i < len(results)-1; i++ {
+					assert.True(t, results[i].CreatedAt.After(results[i+1].CreatedAt) ||
+						results[i].CreatedAt.Equal(results[i+1].CreatedAt))
+				}
+			}
+		})
+	}
+}
+
+func TestReportDAO_GetByStatus(t *testing.T) {
+	testDB := test.NewTestDatabase(t)
+	defer testDB.Close()
+
+	testDB.CreateTestTables(t)
+	require.NoError(t, CreateReportsTable(testDB.DB))
+
+	dao := NewSQLiteReportDAO(testDB.DB)
+	ctx := context.Background()
+
+	// Create reports with different statuses
+	statuses := []string{"generating", "completed", "failed", "completed", "generating"}
+	for i, status := range statuses {
+		report := &Report{
+			ScanID:   "scan-001",
+			Title:    fmt.Sprintf("Report %d", i),
+			Format:   "json",
+			Status:   status,
+			FilePath: fmt.Sprintf("/reports/%d.json", i),
+		}
+		err := dao.Create(ctx, report)
+		require.NoError(t, err)
+	}
+
+	tests := []struct {
+		name        string
+		status      string
+		expectedLen int
+	}{
+		{
+			name:        "completed reports",
+			status:      "completed",
+			expectedLen: 2,
+		},
+		{
+			name:        "generating reports",
+			status:      "generating",
+			expectedLen: 2,
+		},
+		{
+			name:        "failed reports",
+			status:      "failed",
+			expectedLen: 1,
+		},
+		{
+			name:        "non-existent status",
+			status:      "unknown",
+			expectedLen: 0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			results, err := dao.GetByStatus(ctx, tt.status)
+			require.NoError(t, err)
+			assert.Len(t, results, tt.expectedLen)
+
+			// Verify all results have the correct status
+			for _, result := range results {
+				assert.Equal(t, tt.status, result.Status)
+			}
+		})
+	}
+}
+
+func TestReportDAO_CountByStatus(t *testing.T) {
+	testDB := test.NewTestDatabase(t)
+	defer testDB.Close()
+
+	testDB.CreateTestTables(t)
+	require.NoError(t, CreateReportsTable(testDB.DB))
+
+	dao := NewSQLiteReportDAO(testDB.DB)
+	ctx := context.Background()
+
+	// Create reports with different statuses
+	statusCounts := map[string]int{
+		"generating": 3,
+		"completed":  5,
+		"failed":     2,
+	}
+
+	for status, count := range statusCounts {
+		for i := 0; i < count; i++ {
+			report := &Report{
+				ScanID:   "scan-001",
+				Title:    fmt.Sprintf("%s Report %d", status, i),
+				Format:   "json",
+				Status:   status,
+				FilePath: fmt.Sprintf("/reports/%s_%d.json", status, i),
+			}
+			err := dao.Create(ctx, report)
+			require.NoError(t, err)
+		}
+	}
+
+	// Test count by status
+	counts, err := dao.CountByStatus(ctx)
+	require.NoError(t, err)
+
+	assert.Equal(t, statusCounts["generating"], counts["generating"])
+	assert.Equal(t, statusCounts["completed"], counts["completed"])
+	assert.Equal(t, statusCounts["failed"], counts["failed"])
+}
+
+func TestReportDAO_Integration(t *testing.T) {
+	testDB := test.NewTestDatabase(t)
+	defer testDB.Close()
+
+	testDB.CreateTestTables(t)
+	require.NoError(t, CreateReportsTable(testDB.DB))
+
+	dao := NewSQLiteReportDAO(testDB.DB)
+	ctx := context.Background()
+
+	// Integration test: Create -> Read -> Update -> Read -> Delete -> Read
+	report := &Report{
+		ScanID:      "integration-scan",
+		Title:       "Integration Test Report",
+		Description: "Testing full CRUD lifecycle",
+		Format:      "pdf",
+		Status:      "generating",
+		FilePath:    "/reports/integration.pdf",
+		Metadata:    `{"test": "integration"}`,
+	}
+
+	// Create
+	err := dao.Create(ctx, report)
+	require.NoError(t, err)
+	assert.NotEmpty(t, report.ID)
+
+	// Read
+	created, err := dao.GetByID(ctx, report.ID)
+	require.NoError(t, err)
+	assert.Equal(t, report.Title, created.Title)
+	assert.Equal(t, "generating", created.Status)
+
+	// Update
+	now := time.Now()
+	created.Status = "completed"
+	created.CompletedAt = &now
+	created.Metadata = `{"test": "integration", "completed": true}`
+
+	err = dao.Update(ctx, created)
+	require.NoError(t, err)
+
+	// Read updated
+	updated, err := dao.GetByID(ctx, report.ID)
+	require.NoError(t, err)
+	assert.Equal(t, "completed", updated.Status)
+	assert.NotNil(t, updated.CompletedAt)
+	assert.Contains(t, updated.Metadata, "completed")
+
+	// Test scan-specific queries
+	scanReports, err := dao.GetByScanID(ctx, "integration-scan")
+	require.NoError(t, err)
+	assert.Len(t, scanReports, 1)
+	assert.Equal(t, report.ID, scanReports[0].ID)
+
+	// Test status queries
+	completedReports, err := dao.GetByStatus(ctx, "completed")
+	require.NoError(t, err)
+	assert.Len(t, completedReports, 1)
+
+	// Delete
+	err = dao.Delete(ctx, report.ID)
+	require.NoError(t, err)
+
+	// Verify deletion
+	deleted, err := dao.GetByID(ctx, report.ID)
+	require.NoError(t, err)
+	assert.Nil(t, deleted)
+
+	// Verify scan reports are empty
+	scanReports, err = dao.GetByScanID(ctx, "integration-scan")
+	require.NoError(t, err)
+	assert.Len(t, scanReports, 0)
+}

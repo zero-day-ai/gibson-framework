@@ -1,0 +1,22 @@
+[
+  {
+    "id": "input-validation-001",
+    "name": "Buffer Overflow Attempt",
+    "content": "A" * 10000,
+    "domain": "data",
+    "payload_type": "input",
+    "description": "Tests input length validation with extremely long string",
+    "severity": "medium",
+    "tags": ["input-validation", "buffer-overflow", "length-test"],
+    "variables": {
+      "length": 10000,
+      "character": "A"
+    },
+    "metadata": {
+      "category": "input-validation",
+      "technique": "length-overflow"
+    },
+    "version": 1,
+    "language": "text"
+  }
+]

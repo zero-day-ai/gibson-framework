@@ -1,0 +1,24 @@
+[
+  {
+    "id": "ui-manipulation-001",
+    "name": "CSS Injection",
+    "content": "<style>body{display:none;}</style>",
+    "domain": "interface",
+    "payload_type": "code",
+    "description": "Injects CSS to manipulate UI appearance",
+    "severity": "low",
+    "tags": ["ui-manipulation", "css-injection", "visual-attack"],
+    "variables": {},
+    "metadata": {
+      "category": "ui-security",
+      "technique": "style-injection"
+    },
+    "version": 1,
+    "language": "css"
+  },
+  {
+    "id": "invalid-payload",
+    "name": "Missing Required Fields"
+    // This payload is intentionally malformed to test error handling
+  }
+]
