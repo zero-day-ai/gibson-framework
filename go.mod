@@ -1,10 +1,8 @@
-module github.com/gibson-sec/gibson-framework-2
+module github.com/zero-day-ai/gibson-framework
 
 go 1.24
 
 toolchain go1.24.7
-
-replace github.com/zero-day-ai/gibson-sdk => ../gibson-plugin-sdk
 
 require (
 	github.com/fatih/color v1.17.0
@@ -21,7 +19,7 @@ require (
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
 	github.com/tmc/langchaingo v0.1.13
-	github.com/zero-day-ai/gibson-sdk v1.0.0
+	github.com/zero-day-ai/gibson-plugin-sdk v0.0.0-20250924001326-6e2f75dd49fa
 	golang.org/x/crypto v0.39.0
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
