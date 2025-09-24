@@ -264,9 +264,13 @@ func NewMockSecurityPlugin() *MockSecurityPlugin {
 			Version:      "1.0.0",
 			Description:  "Mock security plugin for testing",
 			Author:       "Test Suite",
-			Domains:      []plugin.SecurityDomain{plugin.DomainInterface},
-			Capabilities: []string{"assess", "validate"},
-			Config:       map[string]string{"timeout": "30s"},
+			Domain:       plugin.DomainInterface,
+			Capabilities: &plugin.PluginCapabilities{
+				SupportsStreaming: true,
+				SupportsBatch: true,
+				TimeoutSeconds: 30,
+			},
+			Metadata: map[string]string{"timeout": "30s"},
 		},
 		ExecuteResponse: &plugin.AssessResponse{
 			Success:   true,
@@ -351,7 +355,10 @@ func CreateTestTarget(id, name, targetType string) *plugin.Target {
 		Name:        name,
 		Type:        targetType,
 		URL:         "http://localhost:8080",
-		Credentials: map[string]string{"api_key": "test-key"},
+		Credentials: &plugin.Credentials{
+			Type: "api_key",
+			Data: map[string]string{"api_key": "test-key"},
+		},
 		Config:      map[string]string{"timeout": "30s"},
 		Tags:        []string{"test"},
 	}
@@ -361,7 +368,10 @@ func CreateTestTarget(id, name, targetType string) *plugin.Target {
 func CreateTestAssessRequest(target *plugin.Target, scanID string) *plugin.AssessRequest {
 	return &plugin.AssessRequest{
 		Target:   target,
-		Config:   map[string]interface{}{"test_mode": true},
+		Config:   &plugin.AssessmentConfig{
+			Domain: plugin.DomainInterface,
+			TimeoutSeconds: 30,
+		},
 		ScanID:   scanID,
 		Timeout:  30 * time.Second,
 		Metadata: map[string]string{"test": "true"},
@@ -378,11 +388,19 @@ func CreateTestFinding(id, title, severity string) *plugin.Finding {
 		Confidence:  plugin.ConfidenceHigh,
 		Category:    "test",
 		Domain:      plugin.DomainInterface,
-		Evidence:    map[string]interface{}{"test": true},
+		Evidence:    &plugin.Evidence{
+			Type: "test",
+			Data: "test evidence",
+			Context: map[string]string{"test": "true"},
+		},
 		Location:    "/test/endpoint",
 		Payload:     "test payload",
 		Response:    "test response",
-		Remediation: "Test remediation steps",
+		Remediation: &plugin.Remediation{
+			Description: "Test remediation steps",
+			Steps: []string{"Step 1: Review", "Step 2: Fix"},
+			Priority: "medium",
+		},
 		References:  []string{"https://example.com/test"},
 		Timestamp:   time.Now(),
 		PluginID:    "test-plugin",
