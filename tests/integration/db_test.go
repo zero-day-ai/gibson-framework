@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gibson-sec/gibson-framework-2/internal/dao"
-	"github.com/gibson-sec/gibson-framework-2/internal/model"
-	"github.com/gibson-sec/gibson-framework-2/internal/testutil"
+	"github.com/zero-day-ai/gibson-framework/internal/dao"
+	"github.com/zero-day-ai/gibson-framework/internal/model"
+	"github.com/zero-day-ai/gibson-framework/internal/testutil"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"

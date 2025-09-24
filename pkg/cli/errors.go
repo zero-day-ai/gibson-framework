@@ -8,8 +8,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gibson-sec/gibson-framework-2/pkg/services"
-	"github.com/gibson-sec/gibson-framework-2/pkg/core/utils"
+	"github.com/zero-day-ai/gibson-framework/pkg/services"
+	"github.com/zero-day-ai/gibson-framework/pkg/core/utils"
 	"github.com/fatih/color"
 )
 

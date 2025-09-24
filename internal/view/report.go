@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gibson-sec/gibson-framework-2/internal/model"
-	"github.com/gibson-sec/gibson-framework-2/internal/service"
+	"github.com/zero-day-ai/gibson-framework/internal/model"
+	"github.com/zero-day-ai/gibson-framework/internal/service"
 	"github.com/google/uuid"
 	"github.com/robfig/cron/v3"
 )

@@ -33,7 +33,7 @@ linters-settings:
         replacement: 'any'
 
   goimports:
-    local-prefixes: github.com/gibson-sec/gibson-framework-2
+    local-prefixes: github.com/zero-day-ai/gibson-framework
 
   # Go vet
   govet:
@@ -140,7 +140,7 @@ linters-settings:
     sections:
       - standard # Standard packages
       - default # Default packages
-      - prefix(github.com/gibson-sec/gibson-framework-2) # Local packages
+      - prefix(github.com/zero-day-ai/gibson-framework) # Local packages
     skip-generated: true
     custom-order: true
 

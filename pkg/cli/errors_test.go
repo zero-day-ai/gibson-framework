@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gibson-sec/gibson-framework-2/pkg/services"
+	"github.com/zero-day-ai/gibson-framework/pkg/services"
 )
 
 func TestNewGitErrorHandler(t *testing.T) {

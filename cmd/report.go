@@ -10,9 +10,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/gibson-sec/gibson-framework-2/internal/dao"
-	"github.com/gibson-sec/gibson-framework-2/internal/service"
-	"github.com/gibson-sec/gibson-framework-2/internal/view"
+	"github.com/zero-day-ai/gibson-framework/internal/dao"
+	"github.com/zero-day-ai/gibson-framework/internal/service"
+	"github.com/zero-day-ai/gibson-framework/internal/view"
 	"github.com/spf13/cobra"
 )
 

@@ -12,7 +12,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gibson-sec/gibson-framework-2/internal/metrics"
+	"github.com/zero-day-ai/gibson-framework/internal/metrics"
 	"github.com/jmoiron/sqlx"
 )
 

@@ -176,11 +176,11 @@ sudo systemctl enable gibson
 ### 2. Package Installation
 ```bash
 # Ubuntu/Debian
-wget https://github.com/gibson-sec/gibson-framework-2/releases/latest/download/gibson_2.0.0_amd64.deb
+wget https://github.com/zero-day-ai/gibson-framework/releases/latest/download/gibson_2.0.0_amd64.deb
 sudo dpkg -i gibson_2.0.0_amd64.deb
 
 # CentOS/RHEL
-wget https://github.com/gibson-sec/gibson-framework-2/releases/latest/download/gibson-2.0.0-1.x86_64.rpm
+wget https://github.com/zero-day-ai/gibson-framework/releases/latest/download/gibson-2.0.0-1.x86_64.rpm
 sudo rpm -ivh gibson-2.0.0-1.x86_64.rpm
 
 # macOS
@@ -202,7 +202,7 @@ kubectl apply -f https://raw.githubusercontent.com/gibson-sec/gibson-framework-2
 ### 4. Manual Installation
 ```bash
 # Download and extract
-wget https://github.com/gibson-sec/gibson-framework-2/releases/latest/download/gibson-linux-amd64.tar.gz
+wget https://github.com/zero-day-ai/gibson-framework/releases/latest/download/gibson-linux-amd64.tar.gz
 tar -xzf gibson-linux-amd64.tar.gz
 sudo mv gibson-linux-amd64 /usr/local/bin/gibson
 ```
@@ -244,7 +244,7 @@ git tag -a v2.0.0 -m "Release v2.0.0"
 git push origin v2.0.0
 
 # 3. Monitor GitHub Actions
-# Visit: https://github.com/gibson-sec/gibson-framework-2/actions
+# Visit: https://github.com/zero-day-ai/gibson-framework/actions
 ```
 
 ### What Happens Automatically
@@ -310,8 +310,8 @@ The Gibson Framework 2.0 deployment package is **PRODUCTION READY** with:
 - **Documentation**: [DEPLOYMENT.md](DEPLOYMENT.md)
 - **Troubleshooting**: [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 - **API Reference**: [docs/api/](docs/api/)
-- **Issues**: https://github.com/gibson-sec/gibson-framework-2/issues
-- **Discussions**: https://github.com/gibson-sec/gibson-framework-2/discussions
+- **Issues**: https://github.com/zero-day-ai/gibson-framework/issues
+- **Discussions**: https://github.com/zero-day-ai/gibson-framework/discussions
 - **Security**: security@gibson-sec.com
 
 ---

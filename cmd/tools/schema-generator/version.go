@@ -10,7 +10,7 @@ import (
 	"sort"
 	"strings"
 
-	coremodels "github.com/gibson-sec/gibson-framework-2/pkg/core/models"
+	coremodels "github.com/zero-day-ai/gibson-framework/pkg/core/models"
 )
 
 const (

@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gibson-sec/gibson-framework-2/internal/dao"
+	"github.com/zero-day-ai/gibson-framework/internal/dao"
 	"github.com/spf13/cobra"
 )
 

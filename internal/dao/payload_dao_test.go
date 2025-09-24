@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gibson-sec/gibson-framework-2/internal/model"
-	"github.com/gibson-sec/gibson-framework-2/internal/test"
+	"github.com/zero-day-ai/gibson-framework/internal/model"
+	"github.com/zero-day-ai/gibson-framework/internal/test"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

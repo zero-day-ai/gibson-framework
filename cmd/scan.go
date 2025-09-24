@@ -10,7 +10,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gibson-sec/gibson-framework-2/internal/view"
+	"github.com/zero-day-ai/gibson-framework/internal/view"
 	"github.com/spf13/cobra"
 )
 

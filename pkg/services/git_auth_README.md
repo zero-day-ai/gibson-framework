@@ -28,8 +28,8 @@ The Git Authentication Helper provides secure credential management and authenti
 ```go
 import (
     "context"
-    "github.com/gibson-sec/gibson-framework-2/pkg/services"
-    "github.com/gibson-sec/gibson-framework-2/internal/service"
+    "github.com/zero-day-ai/gibson-framework/pkg/services"
+    "github.com/zero-day-ai/gibson-framework/internal/service"
 )
 
 // Initialize with service factory and encryption key

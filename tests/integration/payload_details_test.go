@@ -18,9 +18,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"
 
-	"github.com/gibson-sec/gibson-framework-2/internal/dao"
-	"github.com/gibson-sec/gibson-framework-2/internal/model"
-	"github.com/gibson-sec/gibson-framework-2/internal/view"
+	"github.com/zero-day-ai/gibson-framework/internal/dao"
+	"github.com/zero-day-ai/gibson-framework/internal/model"
+	"github.com/zero-day-ai/gibson-framework/internal/view"
 )
 
 func TestPayloadDetailsIntegration(t *testing.T) {

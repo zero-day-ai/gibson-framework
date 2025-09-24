@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 
-	coremodels "github.com/gibson-sec/gibson-framework-2/pkg/core/models"
+	coremodels "github.com/zero-day-ai/gibson-framework/pkg/core/models"
 )
 
 // Repository represents the complete repository interface for all data access

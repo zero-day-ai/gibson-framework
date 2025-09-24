@@ -1102,7 +1102,7 @@ test_matrix:
 #### Step 1: Update go.mod
 ```go
 // Before (using local shared)
-replace github.com/gibson-sec/gibson-framework-2/shared => ../../gibson-framework/shared
+replace github.com/zero-day-ai/gibson-framework/shared => ../../gibson-framework/shared
 
 // After (using SDK)
 require github.com/gibson-sec/gibson-plugin-sdk v1.0.0
@@ -1112,7 +1112,7 @@ require github.com/gibson-sec/gibson-plugin-sdk v1.0.0
 ```go
 // Before
 import (
-    "github.com/gibson-sec/gibson-framework-2/shared"
+    "github.com/zero-day-ai/gibson-framework/shared"
 )
 
 // After

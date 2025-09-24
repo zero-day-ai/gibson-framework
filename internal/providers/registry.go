@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/gibson-sec/gibson-framework-2/internal/model"
+	"github.com/zero-day-ai/gibson-framework/internal/model"
 )
 
 // Registry manages provider URL resolution with thread-safe caching

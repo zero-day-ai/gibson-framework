@@ -116,7 +116,7 @@ uname -a
 2. **Manual installation**:
    ```bash
    # Download manually
-   wget https://github.com/gibson-sec/gibson-framework-2/releases/latest/download/gibson-linux-amd64.tar.gz
+   wget https://github.com/zero-day-ai/gibson-framework/releases/latest/download/gibson-linux-amd64.tar.gz
    tar -xzf gibson-linux-amd64.tar.gz
    sudo mv gibson-linux-amd64 /usr/local/bin/gibson
    sudo chmod +x /usr/local/bin/gibson
@@ -1411,9 +1411,9 @@ When seeking help, please provide:
 
 ### Support Channels
 
-- **GitHub Issues**: https://github.com/gibson-sec/gibson-framework-2/issues
-- **Documentation**: https://github.com/gibson-sec/gibson-framework-2/docs
-- **Discussions**: https://github.com/gibson-sec/gibson-framework-2/discussions
+- **GitHub Issues**: https://github.com/zero-day-ai/gibson-framework/issues
+- **Documentation**: https://github.com/zero-day-ai/gibson-framework/docs
+- **Discussions**: https://github.com/zero-day-ai/gibson-framework/discussions
 - **Security Issues**: security@gibson-sec.com
 
 ### Contributing Fixes

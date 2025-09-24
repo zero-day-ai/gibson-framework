@@ -9,8 +9,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gibson-sec/gibson-framework-2/pkg/core/models"
-	"github.com/gibson-sec/gibson-framework-2/internal/model"
+	"github.com/zero-day-ai/gibson-framework/pkg/core/models"
+	"github.com/zero-day-ai/gibson-framework/internal/model"
 	"github.com/tmc/langchaingo/llms/anthropic"
 	"github.com/tmc/langchaingo/llms/cohere"
 	"github.com/tmc/langchaingo/llms/googleai"

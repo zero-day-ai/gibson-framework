@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gibson-sec/gibson-framework-2/internal/model"
-	"github.com/gibson-sec/gibson-framework-2/internal/plugin"
+	"github.com/zero-day-ai/gibson-framework/internal/model"
+	"github.com/zero-day-ai/gibson-framework/internal/plugin"
 )
 
 // Output methods for different formats

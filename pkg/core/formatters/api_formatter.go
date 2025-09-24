@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"strings"
 
-	coremodels "github.com/gibson-sec/gibson-framework-2/pkg/core/models"
+	coremodels "github.com/zero-day-ai/gibson-framework/pkg/core/models"
 )
 
 // APIFormatter formats payloads into API requests based on domain

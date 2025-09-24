@@ -6,7 +6,7 @@ package providers
 import (
 	"testing"
 
-	"github.com/gibson-sec/gibson-framework-2/internal/model"
+	"github.com/zero-day-ai/gibson-framework/internal/model"
 	"github.com/stretchr/testify/assert"
 )
 

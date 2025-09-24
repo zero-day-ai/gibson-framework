@@ -13,7 +13,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/gibson-sec/gibson-framework-2/internal/health"
+	"github.com/zero-day-ai/gibson-framework/internal/health"
 	"github.com/spf13/cobra"
 )
 
