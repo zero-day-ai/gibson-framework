@@ -19,8 +19,8 @@ import (
 	"github.com/jmoiron/sqlx"
 	"gopkg.in/yaml.v3"
 
-	coremodels "github.com/gibson-sec/gibson-framework-2/pkg/core/models"
-	"github.com/gibson-sec/gibson-framework-2/pkg/core/database/repositories"
+	coremodels "github.com/zero-day-ai/gibson-framework/pkg/core/models"
+	"github.com/zero-day-ai/gibson-framework/pkg/core/database/repositories"
 )
 
 // PayloadSynchronizer handles filesystem to database synchronization of payloads

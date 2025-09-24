@@ -12,8 +12,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 
-	coremodels "github.com/gibson-sec/gibson-framework-2/pkg/core/models"
-	dbmodels "github.com/gibson-sec/gibson-framework-2/pkg/core/database/models"
+	coremodels "github.com/zero-day-ai/gibson-framework/pkg/core/models"
+	dbmodels "github.com/zero-day-ai/gibson-framework/pkg/core/database/models"
 )
 
 // PayloadRepositoryRepository defines the interface for payload repository data access

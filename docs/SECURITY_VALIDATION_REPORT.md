@@ -387,7 +387,7 @@ See deployment documentation for complete security configuration examples.
 
 ### C. Incident Response Contacts
 
-- **Primary:** GitHub Issues - https://github.com/gibson-sec/gibson-framework-2/issues
+- **Primary:** GitHub Issues - https://github.com/zero-day-ai/gibson-framework/issues
 - **Security Issues:** security@gibson-sec.com
 - **Documentation:** TROUBLESHOOTING.md
 

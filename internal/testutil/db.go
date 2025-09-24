@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gibson-sec/gibson-framework-2/internal/dao"
+	"github.com/zero-day-ai/gibson-framework/internal/dao"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/stretchr/testify/require"

@@ -431,7 +431,7 @@ docs-generate:
 		godoc -http=:6060 & \
 		GODOC_PID=$$!; \
 		sleep 3; \
-		curl -s http://localhost:6060/pkg/github.com/gibson-sec/gibson-framework-2/ > $(DOCS_DIR)/api/index.html || true; \
+		curl -s http://localhost:6060/pkg/github.com/zero-day-ai/gibson-framework/ > $(DOCS_DIR)/api/index.html || true; \
 		kill $$GODOC_PID 2>/dev/null || true; \
 	fi
 	@echo "✓ API documentation generated in $(DOCS_DIR)/api/"

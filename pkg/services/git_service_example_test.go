@@ -10,8 +10,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/gibson-sec/gibson-framework-2/pkg/core/models"
-	"github.com/gibson-sec/gibson-framework-2/pkg/services"
+	"github.com/zero-day-ai/gibson-framework/pkg/core/models"
+	"github.com/zero-day-ai/gibson-framework/pkg/services"
 )
 
 func ExampleGitService_Clone() {

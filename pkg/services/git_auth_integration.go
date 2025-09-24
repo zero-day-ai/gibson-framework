@@ -9,8 +9,8 @@ import (
 	"os"
 
 	"github.com/go-git/go-git/v5/plumbing/transport"
-	coremodels "github.com/gibson-sec/gibson-framework-2/pkg/core/models"
-	"github.com/gibson-sec/gibson-framework-2/internal/model"
+	coremodels "github.com/zero-day-ai/gibson-framework/pkg/core/models"
+	"github.com/zero-day-ai/gibson-framework/internal/model"
 )
 
 // GitServiceWithAuth extends GitService with authentication capabilities

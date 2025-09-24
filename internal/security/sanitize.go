@@ -11,7 +11,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/gibson-sec/gibson-framework-2/internal/audit"
+	"github.com/zero-day-ai/gibson-framework/internal/audit"
 )
 
 // Sanitizer defines the interface for input sanitizers

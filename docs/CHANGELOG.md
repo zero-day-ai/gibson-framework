@@ -236,7 +236,7 @@ When contributing changes:
 
 ### Links
 
-- [GitHub Repository](https://github.com/gibson-sec/gibson-framework-2)
-- [Documentation](https://github.com/gibson-sec/gibson-framework-2/docs)
-- [Issue Tracker](https://github.com/gibson-sec/gibson-framework-2/issues)
-- [Security Policy](https://github.com/gibson-sec/gibson-framework-2/security/policy)
+- [GitHub Repository](https://github.com/zero-day-ai/gibson-framework)
+- [Documentation](https://github.com/zero-day-ai/gibson-framework/docs)
+- [Issue Tracker](https://github.com/zero-day-ai/gibson-framework/issues)
+- [Security Policy](https://github.com/zero-day-ai/gibson-framework/security/policy)

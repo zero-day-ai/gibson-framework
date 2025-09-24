@@ -11,7 +11,7 @@ import (
 	"runtime/debug"
 	"time"
 
-	"github.com/gibson-sec/gibson-framework-2/internal/config"
+	"github.com/zero-day-ai/gibson-framework/internal/config"
 	"github.com/lmittmann/tint"
 	"github.com/mattn/go-colorable"
 	"github.com/spf13/cobra"

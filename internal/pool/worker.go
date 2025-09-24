@@ -8,7 +8,7 @@ import (
 	"log/slog"
 	"sync"
 
-	"github.com/gibson-sec/gibson-framework-2/internal/slogs"
+	"github.com/zero-day-ai/gibson-framework/internal/slogs"
 )
 
 const DefaultPoolSize = 10

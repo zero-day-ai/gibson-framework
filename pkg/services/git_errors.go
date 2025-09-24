@@ -17,7 +17,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	// "github.com/go-git/go-git/v5/plumbing/transport"
 	// "github.com/go-git/go-git/v5/plumbing/transport/ssh"
-	coremodels "github.com/gibson-sec/gibson-framework-2/pkg/core/models"
+	coremodels "github.com/zero-day-ai/gibson-framework/pkg/core/models"
 )
 
 // GitError represents a detailed Git operation error with troubleshooting guidance

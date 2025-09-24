@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gibson-sec/gibson-framework-2/internal/plugin"
+	"github.com/zero-day-ai/gibson-framework/internal/plugin"
 )
 
 func TestPluginView_Integration(t *testing.T) {

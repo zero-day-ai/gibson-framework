@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	sdkplugin "github.com/zero-day-ai/gibson-sdk/pkg/plugin"
+	sdkplugin "github.com/zero-day-ai/gibson-plugin-sdk/pkg/plugin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

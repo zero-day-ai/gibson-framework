@@ -10,10 +10,10 @@ import (
 	"os"
 	"path/filepath"
 
-	coremodels "github.com/gibson-sec/gibson-framework-2/pkg/core/models"
-	"github.com/gibson-sec/gibson-framework-2/internal/dao"
-	"github.com/gibson-sec/gibson-framework-2/internal/model"
-	"github.com/gibson-sec/gibson-framework-2/internal/service"
+	coremodels "github.com/zero-day-ai/gibson-framework/pkg/core/models"
+	"github.com/zero-day-ai/gibson-framework/internal/dao"
+	"github.com/zero-day-ai/gibson-framework/internal/model"
+	"github.com/zero-day-ai/gibson-framework/internal/service"
 )
 
 // ExampleGitAuthSetup demonstrates how to set up Git authentication

@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/hashicorp/go-plugin"
-	"github.com/zero-day-ai/gibson-sdk/pkg/plugin"
-	"github.com/zero-day-ai/gibson-sdk/pkg/core/models"
-	"github.com/zero-day-ai/gibson-sdk/pkg/grpc"
+	"github.com/zero-day-ai/gibson-plugin-sdk/pkg/plugin"
+	"github.com/zero-day-ai/gibson-plugin-sdk/pkg/core/models"
+	"github.com/zero-day-ai/gibson-plugin-sdk/pkg/grpc"
 	"github.com/google/uuid"
 )
 

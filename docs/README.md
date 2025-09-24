@@ -22,7 +22,7 @@ Gibson is a comprehensive security testing framework specifically designed for A
 
 **Option 1: Build from Source**
 ```bash
-git clone https://github.com/gibson-sec/gibson-framework-2
+git clone https://github.com/zero-day-ai/gibson-framework
 cd gibson-framework-2
 make build
 make install
@@ -31,7 +31,7 @@ make install
 **Option 2: Download Release**
 ```bash
 # Download the latest release for your platform
-wget https://github.com/gibson-sec/gibson-framework-2/releases/latest/gibson-linux-amd64
+wget https://github.com/zero-day-ai/gibson-framework/releases/latest/gibson-linux-amd64
 chmod +x gibson-linux-amd64
 sudo mv gibson-linux-amd64 /usr/local/bin/gibson
 ```
@@ -439,8 +439,8 @@ package main
 
 import (
     "context"
-    "github.com/gibson-sec/gibson-framework-2/pkg/core/plugin"
-    "github.com/gibson-sec/gibson-framework-2/shared"
+    "github.com/zero-day-ai/gibson-framework/pkg/core/plugin"
+    "github.com/zero-day-ai/gibson-framework/shared"
 )
 
 type CustomSecurityPlugin struct {

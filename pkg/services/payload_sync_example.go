@@ -10,8 +10,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 
-	coremodels "github.com/gibson-sec/gibson-framework-2/pkg/core/models"
-	"github.com/gibson-sec/gibson-framework-2/pkg/core/database/repositories"
+	coremodels "github.com/zero-day-ai/gibson-framework/pkg/core/models"
+	"github.com/zero-day-ai/gibson-framework/pkg/core/database/repositories"
 )
 
 // ExamplePayloadSynchronizerUsage demonstrates how to use the PayloadSynchronizer

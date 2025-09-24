@@ -12,9 +12,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gibson-sec/gibson-framework-2/internal/dao"
-	"github.com/gibson-sec/gibson-framework-2/internal/model"
-	"github.com/gibson-sec/gibson-framework-2/internal/service"
+	"github.com/zero-day-ai/gibson-framework/internal/dao"
+	"github.com/zero-day-ai/gibson-framework/internal/model"
+	"github.com/zero-day-ai/gibson-framework/internal/service"
 	"github.com/google/uuid"
 	"gopkg.in/yaml.v2"
 )

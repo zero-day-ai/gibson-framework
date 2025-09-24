@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gibson-sec/gibson-framework-2/internal/model"
-	"github.com/gibson-sec/gibson-framework-2/pkg/core/models"
-	modelservice "github.com/gibson-sec/gibson-framework-2/pkg/services/model"
+	"github.com/zero-day-ai/gibson-framework/internal/model"
+	"github.com/zero-day-ai/gibson-framework/pkg/core/models"
+	modelservice "github.com/zero-day-ai/gibson-framework/pkg/services/model"
 )
 
 // ProviderAdapter provides langchaingo-based provider URL resolution and model defaulting

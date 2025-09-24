@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	coremodels "github.com/gibson-sec/gibson-framework-2/pkg/core/models"
+	coremodels "github.com/zero-day-ai/gibson-framework/pkg/core/models"
 )
 
 // TypeMapper handles mapping Go types to JSON Schema types

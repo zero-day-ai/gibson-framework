@@ -75,7 +75,7 @@ brew services start gibson
 
 ```bash
 # Download and install DEB package
-wget https://github.com/gibson-sec/gibson-framework-2/releases/latest/download/gibson_VERSION_amd64.deb
+wget https://github.com/zero-day-ai/gibson-framework/releases/latest/download/gibson_VERSION_amd64.deb
 sudo dpkg -i gibson_VERSION_amd64.deb
 sudo apt-get install -f  # Fix any dependency issues
 ```
@@ -84,7 +84,7 @@ sudo apt-get install -f  # Fix any dependency issues
 
 ```bash
 # Download and install RPM package
-wget https://github.com/gibson-sec/gibson-framework-2/releases/latest/download/gibson-VERSION-1.x86_64.rpm
+wget https://github.com/zero-day-ai/gibson-framework/releases/latest/download/gibson-VERSION-1.x86_64.rpm
 sudo rpm -ivh gibson-VERSION-1.x86_64.rpm
 ```
 
@@ -94,7 +94,7 @@ sudo rpm -ivh gibson-VERSION-1.x86_64.rpm
 
 ```bash
 # Download binary for your platform
-wget https://github.com/gibson-sec/gibson-framework-2/releases/latest/download/gibson-linux-amd64.tar.gz
+wget https://github.com/zero-day-ai/gibson-framework/releases/latest/download/gibson-linux-amd64.tar.gz
 
 # Extract and install
 tar -xzf gibson-linux-amd64.tar.gz
@@ -115,7 +115,7 @@ sudo useradd --system --shell /bin/false gibson
 go version  # Requires Go 1.24+
 
 # Clone repository
-git clone https://github.com/gibson-sec/gibson-framework-2.git
+git clone https://github.com/zero-day-ai/gibson-framework.git
 cd gibson-framework-2
 
 # Build
@@ -232,7 +232,7 @@ The service file is automatically installed with the script or packages:
 ```ini
 [Unit]
 Description=Gibson Framework - AI/ML Security Testing
-Documentation=https://github.com/gibson-sec/gibson-framework-2
+Documentation=https://github.com/zero-day-ai/gibson-framework
 After=network.target
 Wants=network.target
 
@@ -913,7 +913,7 @@ backend gibson_servers
    sudo /opt/gibson/scripts/backup.sh
 
    # Update binary
-   sudo wget -O /usr/local/bin/gibson https://github.com/gibson-sec/gibson-framework-2/releases/latest/download/gibson-linux-amd64
+   sudo wget -O /usr/local/bin/gibson https://github.com/zero-day-ai/gibson-framework/releases/latest/download/gibson-linux-amd64
    sudo chmod +x /usr/local/bin/gibson
 
    # Run migration
@@ -1023,9 +1023,9 @@ For more troubleshooting information, see [TROUBLESHOOTING.md](TROUBLESHOOTING.m
 
 ## Support and Resources
 
-- **Documentation**: https://github.com/gibson-sec/gibson-framework-2/docs
-- **Issues**: https://github.com/gibson-sec/gibson-framework-2/issues
-- **Discussions**: https://github.com/gibson-sec/gibson-framework-2/discussions
+- **Documentation**: https://github.com/zero-day-ai/gibson-framework/docs
+- **Issues**: https://github.com/zero-day-ai/gibson-framework/issues
+- **Discussions**: https://github.com/zero-day-ai/gibson-framework/discussions
 - **Security Issues**: security@gibson-sec.com
 
 ## License

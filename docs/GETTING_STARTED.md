@@ -50,7 +50,7 @@ gibson version --detailed
 
 ```bash
 # Clone repository
-git clone https://github.com/gibson-sec/gibson-framework-2
+git clone https://github.com/zero-day-ai/gibson-framework
 cd gibson-framework-2
 
 # Build and install

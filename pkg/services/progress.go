@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gibson-sec/gibson-framework-2/pkg/core/models"
+	"github.com/zero-day-ai/gibson-framework/pkg/core/models"
 )
 
 // ProgressReporter provides progress tracking and statistics reporting for Git operations

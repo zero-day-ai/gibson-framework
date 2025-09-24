@@ -7,7 +7,7 @@ import (
 	"flag"
 	"log/slog"
 
-	"github.com/gibson-sec/gibson-framework-2/cmd"
+	"github.com/zero-day-ai/gibson-framework/cmd"
 )
 
 func init() {

@@ -14,11 +14,11 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
-	coremodels "github.com/gibson-sec/gibson-framework-2/pkg/core/models"
-	"github.com/gibson-sec/gibson-framework-2/internal/model"
-	"github.com/gibson-sec/gibson-framework-2/internal/service"
+	coremodels "github.com/zero-day-ai/gibson-framework/pkg/core/models"
+	"github.com/zero-day-ai/gibson-framework/internal/model"
+	"github.com/zero-day-ai/gibson-framework/internal/service"
 	"github.com/google/uuid"
-	"github.com/gibson-sec/gibson-framework-2/pkg/utils"
+	"github.com/zero-day-ai/gibson-framework/pkg/utils"
 	ssh2 "golang.org/x/crypto/ssh"
 )
 

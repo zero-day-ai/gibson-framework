@@ -14,9 +14,9 @@ import (
 
 	"github.com/google/uuid"
 
-	coremodels "github.com/gibson-sec/gibson-framework-2/pkg/core/models"
-	"github.com/gibson-sec/gibson-framework-2/pkg/core/database/repositories"
-	"github.com/gibson-sec/gibson-framework-2/pkg/services"
+	coremodels "github.com/zero-day-ai/gibson-framework/pkg/core/models"
+	"github.com/zero-day-ai/gibson-framework/pkg/core/database/repositories"
+	"github.com/zero-day-ai/gibson-framework/pkg/services"
 )
 
 // GitSynchronizer manages the complete synchronization workflow from Git repositories to database

@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gibson-sec/gibson-framework-2/internal/slogs"
+	"github.com/zero-day-ai/gibson-framework/internal/slogs"
 )
 
 // Repository interface for dependency injection (minimal version for testing)

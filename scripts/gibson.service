@@ -1,6 +1,6 @@
 [Unit]
 Description=Gibson Framework - AI/ML Security Testing
-Documentation=https://github.com/gibson-sec/gibson-framework-2
+Documentation=https://github.com/zero-day-ai/gibson-framework
 After=network.target
 Wants=network.target
 

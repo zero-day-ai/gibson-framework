@@ -216,8 +216,6 @@ github.com/tmc/langchaingo v0.1.13 h1:rcpMWBIi2y3B90XxfE4Ao8dhCQPVDMaNPnN5cGB1Ca
 github.com/tmc/langchaingo v0.1.13/go.mod h1:vpQ5NOIhpzxDfTZK9B6tf2GM/MoaHewPWM5KXXGh7hg=
 github.com/xanzy/ssh-agent v0.3.3 h1:+/15pJfg/RsTxqYcX6fHqOXZwwMP+2VyYWJeWM2qQFM=
 github.com/xanzy/ssh-agent v0.3.3/go.mod h1:6dzNDKs0J9rVPHPhaGCukekBHKqfl+L3KghI1Bc68Uw=
-github.com/zero-day-ai/gibson-plugin-sdk v0.0.0-20250924001030-2c4bb2af310c h1:zFSWo9zBnH1trDrpF4VtH3Mj7iMVAQr8pXeHMuxBObU=
-github.com/zero-day-ai/gibson-plugin-sdk v0.0.0-20250924001030-2c4bb2af310c/go.mod h1:Y06OBRoQS3/FTChwZ0r6q8XiVlQ8bU6zDdyVMRR03Kw=
 github.com/zero-day-ai/gibson-plugin-sdk v0.0.0-20250924001326-6e2f75dd49fa h1:3jwJlutp3E2atW8osXJRIUu7J4ejzfyYgSuu8f+Eq1g=
 github.com/zero-day-ai/gibson-plugin-sdk v0.0.0-20250924001326-6e2f75dd49fa/go.mod h1:Y06OBRoQS3/FTChwZ0r6q8XiVlQ8bU6zDdyVMRR03Kw=
 go.opencensus.io v0.24.0 h1:y73uSU6J157QMP2kn2r30vwW1A2W2WFwSCGnAVxeaD0=

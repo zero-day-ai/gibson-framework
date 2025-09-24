@@ -12,8 +12,8 @@ import (
 
 	"github.com/hashicorp/go-plugin"
 	"github.com/hashicorp/go-hclog"
-	sdkplugin "github.com/zero-day-ai/gibson-sdk/pkg/plugin"
-	"github.com/zero-day-ai/gibson-sdk/pkg/grpc"
+	sdkplugin "github.com/zero-day-ai/gibson-plugin-sdk/pkg/plugin"
+	"github.com/zero-day-ai/gibson-plugin-sdk/pkg/grpc"
 )
 
 // Manager handles plugin discovery, loading, and lifecycle management

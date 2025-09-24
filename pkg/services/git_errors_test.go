@@ -13,7 +13,7 @@ import (
 	// "time"
 
 	"github.com/go-git/go-git/v5"
-	coremodels "github.com/gibson-sec/gibson-framework-2/pkg/core/models"
+	coremodels "github.com/zero-day-ai/gibson-framework/pkg/core/models"
 )
 
 func TestWrapGitError(t *testing.T) {

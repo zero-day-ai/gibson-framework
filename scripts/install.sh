@@ -5,7 +5,7 @@
 set -e
 
 # Configuration
-GITHUB_REPO="gibson-sec/gibson-framework-2"
+GITHUB_REPO="zero-day-ai/gibson-framework"
 BINARY_NAME="gibson"
 INSTALL_DIR="/usr/local/bin"
 CONFIG_DIR="/etc/gibson"
@@ -194,7 +194,7 @@ create_config() {
 
         sudo tee "$config_file" > /dev/null <<EOF
 # Gibson Framework Configuration
-# See https://github.com/gibson-sec/gibson-framework-2 for documentation
+# See https://github.com/zero-day-ai/gibson-framework for documentation
 
 # Server configuration
 server:
@@ -239,7 +239,7 @@ install_service() {
         sudo tee /etc/systemd/system/gibson.service > /dev/null <<EOF
 [Unit]
 Description=Gibson Framework - AI/ML Security Testing
-Documentation=https://github.com/gibson-sec/gibson-framework-2
+Documentation=https://github.com/zero-day-ai/gibson-framework
 After=network.target
 Wants=network.target
 

@@ -2,8 +2,6 @@ module github.com/zero-day-ai/gibson-framework
 
 go 1.24
 
-toolchain go1.24.7
-
 require (
 	github.com/fatih/color v1.17.0
 	github.com/go-git/go-git/v5 v5.16.2

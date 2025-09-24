@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/gibson-sec/gibson-framework-2/pkg/core/models"
+	"github.com/zero-day-ai/gibson-framework/pkg/core/models"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gibson-sec/gibson-framework-2/pkg/core/models"
+	"github.com/zero-day-ai/gibson-framework/pkg/core/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

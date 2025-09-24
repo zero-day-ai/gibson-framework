@@ -10,11 +10,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gibson-sec/gibson-framework-2/internal/dao"
-	"github.com/gibson-sec/gibson-framework-2/internal/model"
-	"github.com/gibson-sec/gibson-framework-2/internal/plugin"
-	"github.com/gibson-sec/gibson-framework-2/internal/service"
-	sdkplugin "github.com/zero-day-ai/gibson-sdk/pkg/plugin"
+	"github.com/zero-day-ai/gibson-framework/internal/dao"
+	"github.com/zero-day-ai/gibson-framework/internal/model"
+	"github.com/zero-day-ai/gibson-framework/internal/plugin"
+	"github.com/zero-day-ai/gibson-framework/internal/service"
+	sdkplugin "github.com/zero-day-ai/gibson-plugin-sdk/pkg/plugin"
 )
 
 // pluginView implements PluginViewer following k9s patterns
