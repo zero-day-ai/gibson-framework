@@ -32,7 +32,7 @@ Named after the Gibson supercomputer from _Hackers_ (1995), Gibson Framework is 
 - **Target Configuration**: Manages API endpoints, credentials (AES-256 encrypted), and provider authentication
 - **Concurrent Execution**: Runs security tests in parallel using configurable worker pools
 - **Result Tracking**: Records scan results, findings, and generates reports from plugin execution data
-- **Resource Management**: CLI-based interface following k9s patterns for targets, scans, payloads, and credentials
+- **Resource Management**: CLI-based interface for managing targets, scans, payloads, and credentials
 
 **What It Doesn't Do:**
 
@@ -53,7 +53,6 @@ Gibson is infrastructure - it calls your plugins, manages your payloads, tracks 
 [+] Worker pool concurrency (configurable parallelism)
 [+] Domain-based payload organization (model/data/interface/infrastructure/output/process)
 [+] CLI with Cobra commands and Viper configuration
-[+] Resource watchers for state change monitoring
 ```
 
 ### Quick Start
