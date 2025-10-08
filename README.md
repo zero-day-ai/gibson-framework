@@ -19,23 +19,41 @@
 
 ## >> SYSTEM_BREACH_INITIATED
 
-**Gibson Framework** - An AI/ML security testing platform that doesn't just scan the surface. It dives deep into the neural networks, probes the decision boundaries, and exposes the vulnerabilities that hide in the shadows of artificial intelligence.
-
-Named after the Gibson supercomputer from _Hackers_ (1995), this framework embodies the spirit of curiosity-driven security research. Because in the age of AI, we need tools that can think as fast as the systems we're testing.
+Named after the Gibson supercomputer from _Hackers_ (1995), Gibson Framework is a CLI orchestrator for AI/ML security testing. It manages plugins, payloads, targets, and credentials - providing the infrastructure security researchers need to systematically test LLM APIs and machine learning endpoints.
 
 ## >> ACCESS_GRANTED
 
-### Features
+**Gibson Framework** is a command-line security testing orchestrator for AI/ML systems. It doesn't analyze neural networks or model internals - instead, it provides infrastructure for managing and executing external security testing plugins against LLM APIs and ML endpoints.
+
+**What Gibson Actually Does:**
+
+- **Plugin Orchestration**: Loads and executes security testing plugins (via HashiCorp go-plugin) against configured targets
+- **Payload Management**: Stores and organizes attack payloads in a SQLite database, synced from Git repositories
+- **Target Configuration**: Manages API endpoints, credentials (AES-256 encrypted), and provider authentication
+- **Concurrent Execution**: Runs security tests in parallel using configurable worker pools
+- **Result Tracking**: Records scan results, findings, and generates reports from plugin execution data
+- **Resource Management**: CLI-based interface following k9s patterns for targets, scans, payloads, and credentials
+
+**What It Doesn't Do:**
+
+- No model introspection or weight analysis
+- No neural network decomposition or feature extraction
+- No training data analysis or model architecture examination
+- No autonomous vulnerability discovery
+
+Gibson is infrastructure - it calls your plugins, manages your payloads, tracks your results. The actual security testing logic lives in plugins you write or import.
+
+### Core Capabilities
 
 ```bash
-[+] Plugin-based architecture for extensible security testing
-[+] AI/ML model vulnerability scanning & assessment
-[+] Payload generation and management system
-[+] Credential handling for secure authentication
-[+] Multi-target concurrent scanning capabilities
-[+] Real-time monitoring and reporting
-[+] Git-based payload repository synchronization
-[+] Worker pool for high-performance parallel operations
+[+] Plugin-based architecture using HashiCorp go-plugin (gRPC)
+[+] Git repository synchronization for payload distribution
+[+] SQLite-backed target, credential, and scan management
+[+] AES-256 encrypted credential storage with key management
+[+] Worker pool concurrency (configurable parallelism)
+[+] Domain-based payload organization (model/data/interface/infrastructure/output/process)
+[+] CLI with Cobra commands and Viper configuration
+[+] Resource watchers for state change monitoring
 ```
 
 ### Quick Start
