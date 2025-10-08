@@ -34,6 +34,16 @@ Named after the Gibson supercomputer from _Hackers_ (1995), Gibson Framework is 
 - **Result Tracking**: Records scan results, findings, and generates reports from plugin execution data
 - **Resource Management**: CLI-based interface for managing targets, scans, payloads, and credentials
 
+**Deterministic Testing of Indeterministic Systems:**
+
+Gibson enables repeatable security testing of non-deterministic LLMs by providing:
+- **Deterministic Input**: Version-controlled payloads from Git repositories ensure identical attack vectors across test runs
+- **Consistent Evaluation**: Plugins apply rule-based scoring (pattern matching, classifiers, detection rules) to quantify LLM responses
+- **Statistical Analysis**: Multiple test runs map probability distributions - which attacks succeed X% of the time
+- **Edge Detection**: By testing many payloads, you discover the boundaries of LLM behavior - the "edges" where safety mechanisms break down
+
+The LLM's responses may vary, but Gibson's scoring is deterministic. Run the same payload 100 times, get 100 different responses, but consistently measure which ones represent security failures. This transforms unpredictable LLM behavior into quantifiable security metrics (success rates, exploitation scores, confidence intervals).
+
 **What It Doesn't Do:**
 
 - No model introspection or weight analysis
@@ -41,7 +51,7 @@ Named after the Gibson supercomputer from _Hackers_ (1995), Gibson Framework is 
 - No training data analysis or model architecture examination
 - No autonomous vulnerability discovery
 
-Gibson is infrastructure - it calls your plugins, manages your payloads, tracks your results. The actual security testing logic lives in plugins you write or import.
+Gibson is infrastructure - it calls your plugins, manages your payloads, tracks your results. The actual security testing logic (scoring, detection, classification) lives in plugins you write or import.
 
 ### Core Capabilities
 
