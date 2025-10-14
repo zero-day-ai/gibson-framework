@@ -1,4 +1,6 @@
 CLAUDE.md
+.spec-workflow/
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
